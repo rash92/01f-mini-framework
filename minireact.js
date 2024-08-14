@@ -3,7 +3,12 @@
 function createElement(type, props, ...children){
     return {
         type: type,
-        props: {...props, children}
+        props: {
+            ...props, 
+            children: children.map(child =>
+                typeof child === "object" ? child : createTextElement(child)
+            )
+        }
     }
 }
 
@@ -18,69 +23,37 @@ function createTextElement(text){
 }
 
 function render(element, container){
-    console.log("inputs: ", element, container)
-    let node = document.createElement(element.type)
-    node["title"] = element.props.title
-
-    let children = element.props.children
-    for (let child of children){
-        if (typeof child !== "object"){
-            console.log("string child found: ", child)
-            let text = document.createTextNode("")
-            text["nodeValue"] = child
-            node.appendChild(text)
-        }else{
-            console.log("child is not a string, attempting recursion with inputs: ", child, node)
-            console.log("type of child is: ", typeof child)
-            render(child, node)
-        }
-    }
-
-    container.appendChild(node)
+    console.log("rendering element: ", element, "of type: ", typeof element, "with container: ", container)
+    const dom =
+        element.type == "TEXT_ELEMENT"
+        ? document.createTextNode("")
+        : document.createElement(element.type);
+    const isProperty = key => key !== "children";
+    Object.keys(element.props)
+        .filter(isProperty)
+        .forEach(name => {
+        dom[name] = element.props[name];
+        });
+    element.props.children.forEach(child => render(child, dom));
+    container.appendChild(dom);
 }
 
 
 
 //testing
 
-let greatGrandChild1 = {
-    type: "h4",
-    props:{
-        title: "greatgrandchild 1",
-        children: ["i am greatgrandchild 1", 32]
-    },
-}
-let grandChild1 = {
-    type: "h3",
-    props:{
-        title: "grandchild 1",
-        children: ["i am grandchild 1", greatGrandChild1]
-    },
+let greatGrandChild1 = createElement("h4", {title: "greatgrandchild 1"}, "i am greatgrandchild 1 ", "youngest of all")
 
-}
-let grandChild2 = {
-    type: "h3",
-    props:{
-        title: "grandchild 2",
-        children: ["grandchild 2"]
-    },
+let grandChild1 = createElement("h3", {title: "grandchild 1"}, "i am grandchild 1", greatGrandChild1)
 
-}
-let testChild1 = {
-    type: "h2",
-    props:{
-        title: "child 1",
-        children: ["i am child 1", grandChild1, grandChild2]
-    },
+let grandChild2 = createElement("h3", {title: "grandchild 2"}, "i am grandchild 2")
 
-}
-let testChild2 = createElement("h2", {title: "child 2"}, "i am child 2", grandChild1, grandChild2)
-console.log("test child 2", testChild2)
+let testChild1 = createElement("h2", {title: "child 1"}, "i am child 1", grandChild1, grandChild2)
+
+let testChild2 = createElement("h2", {title: "child 2"}, "I am child 2", " last of my line")
+
+let testParent = createElement("h1", {title: "parent"}, "test parent", testChild1, testChild2)
+
 let container = document.getElementById("root")
-let testElement = createElement("h1", {title: "test title"}, "test element")
-console.log("test element: ", testElement)
 
-console.log("getting root element as container: ", container)
-
-console.log(testElement)
-render(testChild2, container)
+render(testParent, container)
