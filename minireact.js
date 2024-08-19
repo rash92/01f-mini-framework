@@ -21,23 +21,25 @@ function createTextElement(text) {
 }
 
 function createDom(fiber) {
+  console.log("creating dom for fiber: ", fiber);
   const dom =
     fiber.type == "TEXT_ELEMENT"
       ? document.createTextNode("")
       : document.createElement(fiber.type);
 
-  const isProperty = (key) => key !== "children";
+  updateDom(dom, {}, fiber.props);
 
-  Object.keys(fiber.props)
-    .filter(isProperty)
-    .forEach((name) => {
-      dom[name] = fiber.props[name];
-    });
+  console.log("return dom: ", dom);
   return dom;
 }
 
-function render(element, container) {
+const isEvent = (key) => key.startsWith("on");
+const isProp = (key) => key !== "children" && !isEvent(key);
+const isNew = (prev, next) => (key) => prev[key] !== next[key];
+const isGone = (prev, next) => (key) => !(key in next);
+const getEventType = (name) => name.toLowerCase().substring(2);
 
+function render(element, container) {
   wipRoot = {
     dom: container,
     props: {
@@ -45,14 +47,14 @@ function render(element, container) {
     },
     alternate: currentRoot,
   };
-  deletions = []
-  nextTask = wipRoot
+  deletions = [];
+  nextTask = wipRoot;
 }
 
 let nextTask = null;
-let wipRoot = null
-let currentRoot = null
-let deletions = null
+let wipRoot = null;
+let currentRoot = null;
+let deletions = null;
 
 function workLoop(deadline) {
   let yield = false;
@@ -61,165 +63,173 @@ function workLoop(deadline) {
     yield = deadline.timeRemaining() < 1;
   }
   //commit when task queue is empty
-  if (!nextTask && wipRoot){
-    commitRoot()
+  if (!nextTask && wipRoot) {
+    commitRoot();
   }
   requestIdleCallback(workLoop);
 }
 
 //rewrite?
-function updateDom(dom, prevProps, nextProps){
-    const isEvent = key => key.startsWith("on")
-    const isProp = key => key !== "children" && !isEvent(key)
-    const isNew = (prev, next) => key => prev[key] !== next[key]
-    const isGone = (next) => key => !(key in next)
-    const getEventType = name => name.toLowerCase().substring(2)
+function updateDom(dom, prevProps, nextProps) {
+    console.log("updating dom: ", dom, " from: ", prevProps, "to: ", nextProps)
+  //unsure if order of these matters? doing same order as guide
+  //remove old or changed event listeners
+  Object.keys(prevProps)
+    .filter(isEvent)
+    .filter((key) => !(key in nextProps) || isNew(prevProps, nextProps)(key))
+    .forEach((name) =>
+      dom.removeEventListener(getEventType(name), prevProps[name])
+    );
 
-    //unsure if order of these matters? doing same order as guide
-    //remove old or changed event listeners
-    Object.keys(prevProps)
-        .filter(isEvent)
-        .filter(key => !(key in nextProps) || isNew(prevProps,nextProps)(key))
-        .forEach(name => dom.removeEventListener(getEventType(name), prevProps[name]))
+  //remove old props
+  Object.keys(prevProps)
+    .filter(isProp)
+    .filter(isGone(prevProps, nextProps))
+    .forEach((name) => {
+      dom[name] = "";
+    });
 
-    //remove old props
-    Object.keys(prevProps)
-        .filter(isProp)
-        .filter(isGone(nextProps))
-        .forEach(name => {
-            dom[name] = ""
-        })
-
-    //add new or changed props
-    Object.keys(nextProps)
-        .filter(isProp)
-        .filter(isNew(prevProps,nextProps))
-        .forEach(name =>{
-            dom[name] = nextProps[name]
-        })
-    //add new event listeners
-    Object.keys(nextProps)
-        .filter(isEvent)
-        .filter(isNew(prevProps, nextProps))
-        .forEach(name => dom.addEventListener(getEventType(name),nextProps[name]))
-    
+  //add new or changed props
+  Object.keys(nextProps)
+    .filter(isProp)
+    .filter(isNew(prevProps, nextProps))
+    .forEach((name) => {
+      dom[name] = nextProps[name];
+    });
+  //add new event listeners
+  Object.keys(nextProps)
+    .filter(isEvent)
+    .filter(isNew(prevProps, nextProps))
+    .forEach((name) =>
+      dom.addEventListener(getEventType(name), nextProps[name])
+    );
 }
 
-function commitRoot(){
-    deletions.forEach(commitWork)
-    commitWork(wipRoot.child)
-    currentRoot = wipRoot
-    wipRoot = null
+function commitRoot() {
+  console.log("at deletions on commit root");
+  deletions.forEach(commitWork);
+  console.log("at committing wiproot child");
+  commitWork(wipRoot.firstChild);
+  console.log("post commitWork, wipRoot is: ", wipRoot, "currentRoot is: ", currentRoot)
+  currentRoot = wipRoot;
+  wipRoot = null;
 }
 
-function commitWork(fiber){
-    if(!fiber){
-        return
-    }
-    const domParent = fiber.parent.dom
-    //might break because fiber.dom might not exist?! in which case need if else statements
-    //could possibly check for this elsewhere
-    switch(fiber.effectTag){
-        case "APPEND":
-            domParent.appendChild(fiber.dom)
-            break;
-        case "DELETE":
-            domParent.removeChild(fiber.dom)
-            break;
-        case "UPDATE":
-            updateDom(fiber.dom, fiber.alternate.props,fiber.props)
-    }
-    
-    commitWork(fiber.child)
-    commitWork(fiber.sibling)
+function commitWork(fiber) {
+  console.log("at commit work with fiber: ", fiber);
+  if (!fiber) {
+    return;
+  }
+  const domParent = fiber.parent.dom;
+ 
+  if (fiber.effectTag === "APPEND" && fiber.dom != null) {
+    console.log("appending child to dom parent")
+    domParent.appendChild(fiber.dom);
+  } else if (fiber.effectTag === "UPDATE" && fiber.dom != null) {
+    updateDom(fiber.dom, fiber.alternate.props, fiber.props);
+  } else if (fiber.effectTag === "DELETE") {
+    domParent.removeChild(fiber.dom);
+  }
+
+  commitWork(fiber.firstChild);
+  commitWork(fiber.sibling);
 }
 
 //takes in a fiber to perform tasks on, then returns next fiber to work on next.
 //order is child, if no children sibling, if no siblings 'uncle'.
 function performTask(fiber) {
+  console.log("performing task on fiber: ", fiber);
   if (!fiber.dom) {
     fiber.dom = createDom(fiber);
   }
 
-
   let children = fiber.props.children;
-  reconcileChildren(fiber, children)
+  reconcileChildren(fiber, children);
   //go through children to assign as first child vs sibling of previous child
 
-
-  //return next in line for tasks, child exist is easy case. 
+  //return next in line for tasks, child exist is easy case.
   //If not look for siblings, uncles, great uncles etc.
-  if (fiber.firstChild){
-    return fiber.firstChild
+  if (fiber.firstChild) {
+    return fiber.firstChild;
   }
-  let nextFiber = fiber
-  while(nextFiber){
-    if(nextFiber.sibling){
-        return nextFiber.sibling
+  let nextFiber = fiber;
+  while (nextFiber) {
+    if (nextFiber.sibling) {
+      return nextFiber.sibling;
     }
-    nextFiber = nextFiber.parent
+    nextFiber = nextFiber.parent;
   }
-  
 }
 
-function reconcileChildren(wipFiber, children){
+function reconcileChildren(wipFiber, children) {
+  let prevSibling = null;
+  //javascript && weirdness, will return first part if it's falsy, or will return value of second part
+  //i.e. will be null if either are null, otherwise second value
+  let oldFiber = wipFiber.alternate && wipFiber.alternate.firstChild;
+  for (let i = 0; i < children.length || oldFiber != null; i++) {
+    const child = children[i];
+    let newFiber = null;
 
-    let prevSibling = null;
-    //javascript && weirdness, will return first part if it's falsy, or will return value of second part
-    //i.e. will be null if either are null, otherwise second value
-    let oldFiber = wipFiber.alternate && wipFiber.alternate.child
-    for (let i = 0; i < children.length || oldFiber != null; i++) {
-        const child = children[i];
-        let newFiber = null
+    const sameType = oldFiber && child && child.type == oldFiber.type;
 
-        const sameType = oldFiber && child && child.type == oldFiber.type
-        
-        //keep existing node but replace props
-        if (sameType){
-            newFiber = {
-                type: child.type,
-                props: child.props,
-                dom: oldFiber.dom,
-                parent: wipFiber,
-                alternate: oldFiber,
-                effectTag: "UPDATE",
-            }
-        }
-        //create and add new node
-        if (child && !sameType){
-            newFiber = {
-                type: child.type,
-                props: child.props,
-                dom: null,
-                parent: wipFiber,
-                alternate: null,
-                effectTag: "APPEND",
-            }
-        }
-        //delete old node
-        if (oldFiber && !sameType){
-            oldFiber.effectTag = "DELETE"
-            deletions.push(oldFiber)
-        }
+    //keep existing node but replace props
+    if (sameType) {
+      newFiber = {
+        type: child.type,
+        props: child.props,
+        dom: oldFiber.dom,
+        parent: wipFiber,
+        alternate: oldFiber,
+        effectTag: "UPDATE",
+      };
+    }
+    //create and add new node
+    if (child && !sameType) {
+      newFiber = {
+        type: child.type,
+        props: child.props,
+        dom: null,
+        parent: wipFiber,
+        alternate: null,
+        effectTag: "APPEND",
+      };
+    }
+    //delete old node
+    if (oldFiber && !sameType) {
+      oldFiber.effectTag = "DELETE";
+      deletions.push(oldFiber);
+    }
 
-        newFiber = {
-          type: child.type,
-          props: child.props,
-          parent: wipFiber,
-          dom: null,
-        };
-    
-        if (i == 0) {
-            wipFiber.firstChild = newFiber;
-        } else {
-          prevSibling.sibling = newFiber;
-        }
-    
-        prevSibling = newFiber;
-      }
+    newFiber = {
+      type: child.type,
+      props: child.props,
+      parent: wipFiber,
+      dom: null,
+    };
+
+    if (i == 0) {
+      wipFiber.firstChild = newFiber;
+    } else {
+      prevSibling.sibling = newFiber;
+    }
+
+    prevSibling = newFiber;
+  }
 }
 
 requestIdleCallback(workLoop);
+
+const updateValue = (e) => ReadableStreamDefaultController(e.target.value);
+
+const rerender = (value) => {
+  const element = createElement(
+    "div",
+    {},
+    createElement("input", { onInput: updateValue, value: value }),
+    createElement("h2", {}, value)
+  );
+  render(element, container);
+};
 
 //testing
 
@@ -268,4 +278,4 @@ let testParent = createElement(
 
 let container = document.getElementById("root");
 
-render(testParent, container);
+rerender("world");
