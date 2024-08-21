@@ -39,35 +39,9 @@ const isNew = (prev, next) => (key) => prev[key] !== next[key];
 const isGone = (prev, next) => (key) => !(key in next);
 const getEventType = (name) => name.toLowerCase().substring(2);
 
-function render(element, container) {
-  wipRoot = {
-    dom: container,
-    props: {
-      children: [element],
-    },
-    alternate: currentRoot,
-  };
-  deletions = [];
-  nextTask = wipRoot;
-}
 
-let nextTask = null;
-let wipRoot = null;
-let currentRoot = null;
-let deletions = null;
 
-function workLoop(deadline) {
-  let yield = false;
-  while (nextTask && !yield) {
-    nextTask = performTask(nextTask);
-    yield = deadline.timeRemaining() < 1;
-  }
-  //commit when task queue is empty
-  if (!nextTask && wipRoot) {
-    commitRoot();
-  }
-  requestIdleCallback(workLoop);
-}
+
 
 //rewrite?
 function updateDom(dom, prevProps, nextProps) {
@@ -135,6 +109,38 @@ function commitWork(fiber) {
   commitWork(fiber.sibling);
 }
 
+function render(element, container) {
+  wipRoot = {
+    dom: container,
+    props: {
+      children: [element],
+    },
+    alternate: currentRoot,
+  };
+  deletions = [];
+  nextTask = wipRoot;
+}
+
+let nextTask = null;
+let wipRoot = null;
+let currentRoot = null;
+let deletions = null;
+
+function workLoop(deadline) {
+  let yield = false;
+  while (nextTask && !yield) {
+    nextTask = performTask(nextTask);
+    yield = deadline.timeRemaining() < 1;
+  }
+  //commit when task queue is empty
+  if (!nextTask && wipRoot) {
+    commitRoot();
+  }
+  requestIdleCallback(workLoop);
+}
+
+requestIdleCallback(workLoop);
+
 //takes in a fiber to perform tasks on, then returns next fiber to work on next.
 //order is child, if no children sibling, if no siblings 'uncle'.
 function performTask(fiber) {
@@ -143,7 +149,7 @@ function performTask(fiber) {
     fiber.dom = createDom(fiber);
   }
 
-  let children = fiber.props.children;
+  const children = fiber.props.children;
   reconcileChildren(fiber, children);
   //go through children to assign as first child vs sibling of previous child
 
@@ -163,11 +169,12 @@ function performTask(fiber) {
 
 function reconcileChildren(wipFiber, children) {
   let prevSibling = null;
+  let index = 0
   //javascript && weirdness, will return first part if it's falsy, or will return value of second part
   //i.e. will be null if either are null, otherwise second value
   let oldFiber = wipFiber.alternate && wipFiber.alternate.firstChild;
-  for (let i = 0; i < children.length || oldFiber != null; i++) {
-    const child = children[i];
+  while (index < children.length || oldFiber != null) {
+    const child = children[index];
     let newFiber = null;
 
     const sameType = oldFiber && child && child.type == oldFiber.type;
@@ -175,7 +182,7 @@ function reconcileChildren(wipFiber, children) {
     //keep existing node but replace props
     if (sameType) {
       newFiber = {
-        type: child.type,
+        type: oldFiber.type,
         props: child.props,
         dom: oldFiber.dom,
         parent: wipFiber,
@@ -200,24 +207,24 @@ function reconcileChildren(wipFiber, children) {
       deletions.push(oldFiber);
     }
 
-    newFiber = {
-      type: child.type,
-      props: child.props,
-      parent: wipFiber,
-      dom: null,
-    };
+    if (oldFiber){
+      oldFiber = oldFiber.sibling
+    }
 
-    if (i == 0) {
+    if (index === 0) {
       wipFiber.firstChild = newFiber;
-    } else {
+    } else if (child){
       prevSibling.sibling = newFiber;
     }
 
     prevSibling = newFiber;
+    index++
   }
 }
 
-requestIdleCallback(workLoop);
+
+
+
 
 const updateValue = (e) => ReadableStreamDefaultController(e.target.value);
 
