@@ -285,4 +285,4 @@ let testParent = createElement(
 
 let container = document.getElementById("root");
 
-rerender("world");
+render(testParent, container);
