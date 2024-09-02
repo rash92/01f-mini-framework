@@ -10,4 +10,7 @@ guide: https://pomb.us/build-your-own-react/
 TODO:
 figure out how to get jsx syntax to work - example seems to have project started with create-react-app then edited, rather than e.g. liveserver. May want to figure out manual babel stuff.
 
+alternatively to using babel, crate own functions to interpret jsx style components as strings into relevant objects.
+
 continue on from step VII: function components
+
