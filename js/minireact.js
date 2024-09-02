@@ -283,6 +283,12 @@ let testParent = createElement(
   testChild2
 );
 
+const minireact = {
+  createElement,
+  render
+}
+
+
 let container = document.getElementById("root");
 
 render(testParent, container);

@@ -12,5 +12,7 @@ figure out how to get jsx syntax to work - example seems to have project started
 
 alternatively to using babel, crate own functions to interpret jsx style components as strings into relevant objects.
 
+figure out jest
+
 continue on from step VII: function components
 

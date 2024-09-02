@@ -1,0 +1,13 @@
+{
+  "name": "mini-framework",
+  "version": "1.0.0",
+  "main": "minireact.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.25.6",
+    "@babel/core": "^7.25.2",
+    "@babel/preset-react": "^7.24.7"
+  }
+}
