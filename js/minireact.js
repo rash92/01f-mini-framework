@@ -226,7 +226,7 @@ function reconcileChildren(wipFiber, children) {
 
 
 
-const updateValue = (e) => ReadableStreamDefaultController(e.target.value);
+const updateValue = (e) => rerender(e.target.value);
 
 const rerender = (value) => {
   const element = createElement(
@@ -287,6 +287,7 @@ const minireact = {
   createElement,
   render
 }
+
 
 
 let container = document.getElementById("root");
