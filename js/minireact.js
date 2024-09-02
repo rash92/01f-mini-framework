@@ -39,10 +39,6 @@ const isNew = (prev, next) => (key) => prev[key] !== next[key];
 const isGone = (prev, next) => (key) => !(key in next);
 const getEventType = (name) => name.toLowerCase().substring(2);
 
-
-
-
-
 //rewrite?
 function updateDom(dom, prevProps, nextProps) {
     console.log("updating dom: ", dom, " from: ", prevProps, "to: ", nextProps)
@@ -222,10 +218,6 @@ function reconcileChildren(wipFiber, children) {
   }
 }
 
-
-
-
-
 const updateValue = (e) => rerender(e.target.value);
 
 const rerender = (value) => {
@@ -287,8 +279,6 @@ const minireact = {
   createElement,
   render
 }
-
-
 
 let container = document.getElementById("root");
 

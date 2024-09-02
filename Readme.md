@@ -14,5 +14,7 @@ alternatively to using babel, crate own functions to interpret jsx style compone
 
 figure out jest
 
+make a server to be run from package.json with npm instead of live server?
+
 continue on from step VII: function components
 
