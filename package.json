@@ -1,7 +1,6 @@
 {
   "name": "mini-framework",
   "version": "1.0.0",
-  "main": "js/minireact.js",
   "scripts": {
     "test": "jest"
   },
