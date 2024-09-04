@@ -21,7 +21,6 @@ function createTextElement(text) {
 }
 
 function createDom(fiber) {
-  console.log("creating dom for fiber: ", fiber);
   const dom =
     fiber.type == "TEXT_ELEMENT"
       ? document.createTextNode("")
@@ -29,7 +28,6 @@ function createDom(fiber) {
 
   updateDom(dom, {}, fiber.props);
 
-  console.log("return dom: ", dom);
   return dom;
 }
 
@@ -41,7 +39,6 @@ const getEventType = (name) => name.toLowerCase().substring(2);
 
 //rewrite?
 function updateDom(dom, prevProps, nextProps) {
-    console.log("updating dom: ", dom, " from: ", prevProps, "to: ", nextProps)
   //unsure if order of these matters? doing same order as guide
   //remove old or changed event listeners
   Object.keys(prevProps)
@@ -76,24 +73,19 @@ function updateDom(dom, prevProps, nextProps) {
 }
 
 function commitRoot() {
-  console.log("at deletions on commit root");
   deletions.forEach(commitWork);
-  console.log("at committing wiproot child");
   commitWork(wipRoot.firstChild);
-  console.log("post commitWork, wipRoot is: ", wipRoot, "currentRoot is: ", currentRoot)
   currentRoot = wipRoot;
   wipRoot = null;
 }
 
 function commitWork(fiber) {
-  console.log("at commit work with fiber: ", fiber);
   if (!fiber) {
     return;
   }
   const domParent = fiber.parent.dom;
  
   if (fiber.effectTag === "APPEND" && fiber.dom != null) {
-    console.log("appending child to dom parent")
     domParent.appendChild(fiber.dom);
   } else if (fiber.effectTag === "UPDATE" && fiber.dom != null) {
     updateDom(fiber.dom, fiber.alternate.props, fiber.props);
@@ -140,7 +132,6 @@ requestIdleCallback(workLoop);
 //takes in a fiber to perform tasks on, then returns next fiber to work on next.
 //order is child, if no children sibling, if no siblings 'uncle'.
 function performTask(fiber) {
-  console.log("performing task on fiber: ", fiber);
   if (!fiber.dom) {
     fiber.dom = createDom(fiber);
   }
@@ -280,7 +271,7 @@ const testParent2 = (
   <h1 title="test parent"> test parent {testChild1}{testChild2}</h1>
 )
 
-
+console.log("test parent to element is: ", testParent2)
 
 let container = document.getElementById("root");
 
