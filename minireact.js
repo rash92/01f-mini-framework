@@ -275,4 +275,5 @@ console.log("test parent to element is: ", testParent2)
 
 let container = document.getElementById("root");
 
-render(testParent2, container);
+// render(testParent2, container);
+rerender("world")
