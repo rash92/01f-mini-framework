@@ -123,10 +123,10 @@ let currentRoot = null;
 let deletions = null;
 
 function workLoop(deadline) {
-  let yield = false;
-  while (nextTask && !yield) {
+  let done = false;
+  while (nextTask && !done) {
     nextTask = performTask(nextTask);
-    yield = deadline.timeRemaining() < 1;
+    done = deadline.timeRemaining() < 1;
   }
   //commit when task queue is empty
   if (!nextTask && wipRoot) {
@@ -275,11 +275,13 @@ let testParent = createElement(
   testChild2
 );
 
-const minireact = {
-  createElement,
-  render
-}
+/** @jsx createElement */
+const testParent2 = (
+  <h1 title="test parent"> test parent {testChild1}{testChild2}</h1>
+)
+
+
 
 let container = document.getElementById("root");
 
-render(testParent, container);
+render(testParent2, container);

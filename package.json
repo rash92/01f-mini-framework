@@ -3,7 +3,8 @@
   "name": "mini-framework",
   "version": "1.0.0",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "babel minireact.js -d lib"
   },
   "devDependencies": {
     "@babel/cli": "^7.25.6",
