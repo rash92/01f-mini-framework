@@ -79,18 +79,34 @@ function commitRoot() {
   wipRoot = null;
 }
 
+function commitDeletion(fiber, domParent){
+  //regular case where non functional component has a dom already
+  if (fiber.dom){
+    domParent.removeChild(fiber.dom)
+    //handle case with functional components, recursively look for children until find a fiber with a dom
+  } else {
+    commitDeletion(fiber.child, domParent)
+  }
+}
+
 function commitWork(fiber) {
   if (!fiber) {
     return;
   }
-  const domParent = fiber.parent.dom;
+
+  let domParentFiber = fiber.parent
+  while (!domParentFiber.dom){
+    domParentFiber = domParentFiber.parent
+  }
+
+  const domParent = domParentFiber.dom;
  
   if (fiber.effectTag === "APPEND" && fiber.dom != null) {
     domParent.appendChild(fiber.dom);
   } else if (fiber.effectTag === "UPDATE" && fiber.dom != null) {
     updateDom(fiber.dom, fiber.alternate.props, fiber.props);
   } else if (fiber.effectTag === "DELETE") {
-    domParent.removeChild(fiber.dom);
+    commitDeletion(fiber, domParent)
   }
 
   commitWork(fiber.firstChild);
@@ -129,15 +145,30 @@ function workLoop(deadline) {
 
 requestIdleCallback(workLoop);
 
-//takes in a fiber to perform tasks on, then returns next fiber to work on next.
-//order is child, if no children sibling, if no siblings 'uncle'.
-function performTask(fiber) {
+function updateFunctionComponent(fiber){
+  const children = [fiber.type(fiber.props)]
+  reconcileChildren(fiber, children)
+}
+
+function updateHostComponent(fiber){
   if (!fiber.dom) {
     fiber.dom = createDom(fiber);
   }
 
   const children = fiber.props.children;
   reconcileChildren(fiber, children);
+}
+
+//takes in a fiber to perform tasks on, then returns next fiber to work on next.
+//order is child, if no children sibling, if no siblings 'uncle'.
+function performTask(fiber) {
+  if (fiber.type instanceof Function){
+    updateFunctionComponent(fiber)
+  } else {
+    updateHostComponent(fiber)
+  }
+
+
   //go through children to assign as first child vs sibling of previous child
 
   //return next in line for tasks, child exist is easy case.
@@ -209,6 +240,15 @@ function reconcileChildren(wipFiber, children) {
   }
 }
 
+/** @jsx createElement */
+function App(props){
+  return <h1>Hi {props.name}</h1>
+}
+
+const funcElement = <App name="foo" />
+
+//testing
+
 const updateValue = (e) => rerender(e.target.value);
 
 const rerender = (value) => {
@@ -221,7 +261,6 @@ const rerender = (value) => {
   render(element, container);
 };
 
-//testing
 
 let greatGrandChild1 = createElement(
   "h4",
@@ -275,5 +314,5 @@ console.log("test parent to element is: ", testParent2)
 
 let container = document.getElementById("root");
 
-// render(testParent2, container);
-rerender("world")
+render(funcElement, container);
+// rerender("world")
