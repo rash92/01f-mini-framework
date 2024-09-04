@@ -16,3 +16,4 @@ continue on from step VIII: hooks
 
 make tests using jest
 
+add event handling. not allowed to use addeventlistener, use things like 'onclick', look for other options/ check with peter.
