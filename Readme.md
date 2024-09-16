@@ -24,3 +24,7 @@ redo with typescript
 add event handling. not allowed to use addeventlistener, use things like 'onclick', look for other options/ check with peter.
 
 make todoMVC app
+
+make a useEffects hook? useRef?
+
+look at optional extensions in epilogue
