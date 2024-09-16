@@ -17,11 +17,13 @@ TODO:
 
 make a server to be run from package.json with npm instead of live server?
 
+add event handling. not allowed to use addeventlistener, use things like 'onclick', look for other options/ check with peter.
+
 make tests using jest
 
 redo with typescript
 
-add event handling. not allowed to use addeventlistener, use things like 'onclick', look for other options/ check with peter.
+
 
 make todoMVC app
 

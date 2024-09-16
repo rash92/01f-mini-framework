@@ -122,22 +122,22 @@ function render(element, container) {
     alternate: currentRoot,
   };
   deletions = [];
-  nextTask = wipRoot;
+  nextUnitOfWork = wipRoot;
 }
 
-let nextTask = null;
+let nextUnitOfWork = null;
 let wipRoot = null;
 let currentRoot = null;
 let deletions = null;
 
 function workLoop(deadline) {
   let done = false;
-  while (nextTask && !done) {
-    nextTask = performTask(nextTask);
+  while (nextUnitOfWork && !done) {
+    nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
     done = deadline.timeRemaining() < 1;
   }
   //commit when task queue is empty
-  if (!nextTask && wipRoot) {
+  if (!nextUnitOfWork && wipRoot) {
     commitRoot();
   }
   requestIdleCallback(workLoop);
@@ -167,7 +167,7 @@ function updateHostComponent(fiber){
 
 //takes in a fiber to perform tasks on, then returns next fiber to work on next.
 //order is child, if no children sibling, if no siblings 'uncle'.
-function performTask(fiber) {
+function performUnitOfWork(fiber) {
   if (fiber.type instanceof Function){
     updateFunctionComponent(fiber)
   } else {
@@ -273,7 +273,7 @@ function useState(initial){
       props: currentRoot.props,
       alternate: currentRoot
     }
-    nextTask = wipRoot
+    nextUnitOfWork = wipRoot
     deletions = []
   }
 
@@ -283,6 +283,9 @@ function useState(initial){
 }
 
 
+
+
+//testing
 
 /** @jsx createElement */
 function App(props){
@@ -302,7 +305,6 @@ function Counter(){
 
 const funcElement = <Counter />
 
-//testing
 
 const updateValue = (e) => rerender(e.target.value);
 
