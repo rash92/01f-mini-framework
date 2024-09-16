@@ -25,6 +25,6 @@ add event handling. not allowed to use addeventlistener, use things like 'onclic
 
 make todoMVC app
 
-make a useEffects hook? useRef?
+make a useEffects hook? useRef? useMemo? useCallback?
 
 look at optional extensions in epilogue
