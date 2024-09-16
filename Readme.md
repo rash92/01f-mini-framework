@@ -7,6 +7,11 @@ Explanation on why things work the way they work
 
 guide: https://pomb.us/build-your-own-react/
 
+To run after changes:
+    - update minireact.js
+    - do 'npm run build'
+    - run live server
+    
 TODO:
 
 
