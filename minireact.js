@@ -26,6 +26,13 @@ function createDom(fiber) {
       ? document.createTextNode("")
       : document.createElement(fiber.type);
 
+  dom.customAddListener = (type, callback) => {
+    console.log("calling custom listener with type: ", type, "and callback fn", callback, " which returns: ", callback())
+    // return callback()
+  }
+  dom.customRemoveListener = (type, callback) => {
+    console.log("calling custom listener remover with type: ", type, "callback function: ", callback, "which returns: ", callback())
+  }
   updateDom(dom, {}, fiber.props);
 
   return dom;
@@ -45,7 +52,11 @@ function updateDom(dom, prevProps, nextProps) {
     .filter(isEvent)
     .filter((key) => !(key in nextProps) || isNew(prevProps, nextProps)(key))
     .forEach((name) =>
-      dom.removeEventListener(getEventType(name), prevProps[name])
+      dom.customRemoveListener(getEventType(name), function logCustomRemoveListenerCallback(){
+        console.log("in custom remove listener, removing event with type: ", getEventType(name), "and listener: ", prevProps[name], "full prevProps is: ", prevProps)
+        dom.removeEventListener(getEventType(name), prevProps[name])
+      })
+      
     );
 
   //remove old props
@@ -68,7 +79,11 @@ function updateDom(dom, prevProps, nextProps) {
     .filter(isEvent)
     .filter(isNew(prevProps, nextProps))
     .forEach((name) =>
-      dom.addEventListener(getEventType(name), nextProps[name])
+      
+      dom.customAddListener(getEventType(name), function logCustomAddListenerCallback(){
+        console.log("inside updateDom adding custom event listener, adding callback event nextProps[name] which is: ", nextProps[name], "nextProps in total is: ", nextProps)
+        dom.addEventListener(getEventType(name), nextProps[name])
+      })
     );
 }
 
@@ -282,7 +297,10 @@ function useState(initial){
   return [hook.state, setState]
 }
 
+//event listener sections, not in tutorial
 
+//replace addEventListener and removeEventListener with custom versions that directly use
+// onclick, ondblclick, onkeydown and any other relevant events.
 
 
 //testing
@@ -293,10 +311,12 @@ function App(props){
 }
 
 /** @jsx createElement */
-function Counter(){
+function Counter(props){
   const [state, setState] = useState(1)
   return (
-    <h1 onClick={() => setState(c => c+1)} style="user-select: none">
+    <h1 onClick={() => setState(c => c+1)} onDblclick={()=>{
+      console.log("ondblclick activated")
+      }} style="user-select: none">
       Count: {state}
     </h1>
   )
