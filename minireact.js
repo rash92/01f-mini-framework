@@ -26,14 +26,48 @@ function createDom(fiber) {
       ? document.createTextNode("")
       : document.createElement(fiber.type);
 
-  dom.customAddListener = (type, callback) => {
-    console.log("calling custom listener with type: ", type, "and callback fn", callback, " which returns: ", callback())
-    // return callback()
-  }
-  dom.customRemoveListener = (type, callback) => {
-    console.log("calling custom listener remover with type: ", type, "callback function: ", callback, "which returns: ", callback())
-  }
+  dom.customAddEventListener = (type, callback) => {
+    console.log("custom listener added with type: ", type, "callback: ", callback, "for dom element: ", dom)
+    switch (type) {
+      case "click":
+        // dom.addEventListener("click", callback)
+        dom.onclick = callback
+        break;
+      case "dblclick":
+        dom.ondblclick = callback
+        break;
+      case "keydown":
+        dom.onkeydown = callback
+        break;
+      case "mouseover":
+        dom.onmouseover = callback
+        break;
+      default:
+        console.log("can't add event to listner: unknown event type")
+        break;
+    }
+  };
+  dom.customRemoveEventListener = (type, callback) => {
+    switch (type) {
+      case "click":
+        dom.onclick = null
+        break;
+      case "dblclick":
+        dom.ondblclick = null
+        break;
+      case "keydown":
+        dom.onkeydown = null
+        break;
+      case "mouseover":
+        dom.onmouseover = null
+        break;
+      default:
+        console.log("can't remove event from listener: unknown event type to remove")
+        break;
+    }
+  };
   updateDom(dom, {}, fiber.props);
+  
 
   return dom;
 }
@@ -52,11 +86,9 @@ function updateDom(dom, prevProps, nextProps) {
     .filter(isEvent)
     .filter((key) => !(key in nextProps) || isNew(prevProps, nextProps)(key))
     .forEach((name) =>
-      dom.customRemoveListener(getEventType(name), function logCustomRemoveListenerCallback(){
-        console.log("in custom remove listener, removing event with type: ", getEventType(name), "and listener: ", prevProps[name], "full prevProps is: ", prevProps)
-        dom.removeEventListener(getEventType(name), prevProps[name])
-      })
-      
+      dom.customRemoveEventListener(
+        getEventType(name), prevProps[name]
+      )
     );
 
   //remove old props
@@ -79,11 +111,9 @@ function updateDom(dom, prevProps, nextProps) {
     .filter(isEvent)
     .filter(isNew(prevProps, nextProps))
     .forEach((name) =>
-      
-      dom.customAddListener(getEventType(name), function logCustomAddListenerCallback(){
-        console.log("inside updateDom adding custom event listener, adding callback event nextProps[name] which is: ", nextProps[name], "nextProps in total is: ", nextProps)
-        dom.addEventListener(getEventType(name), nextProps[name])
-      })
+      dom.customAddEventListener(
+        getEventType(name), nextProps[name]
+      )
     );
 }
 
@@ -94,13 +124,13 @@ function commitRoot() {
   wipRoot = null;
 }
 
-function commitDeletion(fiber, domParent){
+function commitDeletion(fiber, domParent) {
   //regular case where non functional component has a dom already
-  if (fiber.dom){
-    domParent.removeChild(fiber.dom)
+  if (fiber.dom) {
+    domParent.removeChild(fiber.dom);
     //handle case with functional components, recursively look for children until find a fiber with a dom
   } else {
-    commitDeletion(fiber.child, domParent)
+    commitDeletion(fiber.child, domParent);
   }
 }
 
@@ -109,19 +139,19 @@ function commitWork(fiber) {
     return;
   }
 
-  let domParentFiber = fiber.parent
-  while (!domParentFiber.dom){
-    domParentFiber = domParentFiber.parent
+  let domParentFiber = fiber.parent;
+  while (!domParentFiber.dom) {
+    domParentFiber = domParentFiber.parent;
   }
 
   const domParent = domParentFiber.dom;
- 
+
   if (fiber.effectTag === "APPEND" && fiber.dom != null) {
     domParent.appendChild(fiber.dom);
   } else if (fiber.effectTag === "UPDATE" && fiber.dom != null) {
     updateDom(fiber.dom, fiber.alternate.props, fiber.props);
   } else if (fiber.effectTag === "DELETE") {
-    commitDeletion(fiber, domParent)
+    commitDeletion(fiber, domParent);
   }
 
   commitWork(fiber.firstChild);
@@ -160,18 +190,18 @@ function workLoop(deadline) {
 
 requestIdleCallback(workLoop);
 
-let wipFiber = null
-let hookIndex = null
+let wipFiber = null;
+let hookIndex = null;
 
-function updateFunctionComponent(fiber){
-  wipFiber = fiber
-  hookIndex = 0
-  wipFiber.hooks = []
-  const children = [fiber.type(fiber.props)]
-  reconcileChildren(fiber, children)
+function updateFunctionComponent(fiber) {
+  wipFiber = fiber;
+  hookIndex = 0;
+  wipFiber.hooks = [];
+  const children = [fiber.type(fiber.props)];
+  reconcileChildren(fiber, children);
 }
 
-function updateHostComponent(fiber){
+function updateHostComponent(fiber) {
   if (!fiber.dom) {
     fiber.dom = createDom(fiber);
   }
@@ -183,12 +213,11 @@ function updateHostComponent(fiber){
 //takes in a fiber to perform tasks on, then returns next fiber to work on next.
 //order is child, if no children sibling, if no siblings 'uncle'.
 function performUnitOfWork(fiber) {
-  if (fiber.type instanceof Function){
-    updateFunctionComponent(fiber)
+  if (fiber.type instanceof Function) {
+    updateFunctionComponent(fiber);
   } else {
-    updateHostComponent(fiber)
+    updateHostComponent(fiber);
   }
-
 
   //go through children to assign as first child vs sibling of previous child
 
@@ -208,7 +237,7 @@ function performUnitOfWork(fiber) {
 
 function reconcileChildren(wipFiber, children) {
   let prevSibling = null;
-  let index = 0
+  let index = 0;
   //javascript && weirdness, will return first part if it's falsy, or will return value of second part
   //i.e. will be null if either are null, otherwise second value
   let oldFiber = wipFiber.alternate && wipFiber.alternate.firstChild;
@@ -246,55 +275,53 @@ function reconcileChildren(wipFiber, children) {
       deletions.push(oldFiber);
     }
 
-    if (oldFiber){
-      oldFiber = oldFiber.sibling
+    if (oldFiber) {
+      oldFiber = oldFiber.sibling;
     }
 
     if (index === 0) {
       wipFiber.firstChild = newFiber;
-    } else if (child){
+    } else if (child) {
       prevSibling.sibling = newFiber;
     }
 
     prevSibling = newFiber;
-    index++
+    index++;
   }
 }
 
-
-
-function useState(initial){
+function useState(initial) {
   //check if previous hook exists, if it does save in oldhook otherwise return false
   //wipFiber and hookIndex are now globals
   const oldHook =
     wipFiber.alternate &&
     wipFiber.alternate.hooks &&
-    wipFiber.alternate.hooks[hookIndex]
+    wipFiber.alternate.hooks[hookIndex];
   //if hook already exists then get it and put it in hook.state, otherwise initialize
   const hook = {
     state: oldHook ? oldHook.state : initial,
-    queue: []
-  }
+    queue: [],
+  };
 
-  const actions = oldHook ? oldHook.queue : []
-  actions.forEach(action => {
-    hook.state = action(hook.state)
-  })
+  const actions = oldHook ? oldHook.queue : [];
+  actions.forEach((action) => {
+    hook.state = action(hook.state);
+  });
 
-  const setState = action => {
-    hook.queue.push(action)
-    wipRoot ={
+  const setState = (action) => {
+    hook.queue.push(action);
+    wipRoot = {
       dom: currentRoot.dom,
       props: currentRoot.props,
-      alternate: currentRoot
-    }
-    nextUnitOfWork = wipRoot
-    deletions = []
-  }
+      alternate: currentRoot,
+    };
+    nextUnitOfWork = wipRoot;
+    deletions = [];
+  };
 
-  wipFiber.hooks.push(hook)
-  hookIndex++
-  return [hook.state, setState]
+  wipFiber.hooks.push(hook);
+  hookIndex++;
+  return [hook.state, setState];
 }
 
 //event listener sections, not in tutorial
@@ -302,29 +329,37 @@ function useState(initial){
 //replace addEventListener and removeEventListener with custom versions that directly use
 // onclick, ondblclick, onkeydown and any other relevant events.
 
-
 //testing
 
 /** @jsx createElement */
-function App(props){
-  return <h1>Hi {props.name}</h1>
+function App(props) {
+  return <h1>Hi {props.name}</h1>;
 }
 
 /** @jsx createElement */
-function Counter(props){
-  const [state, setState] = useState(1)
+function Counter(props) {
+  const [state, setState] = useState(1);
+  const [state2, setState2] = useState(1);
+  const [state3, setState3] = useState("")
   return (
-    <h1 onClick={() => setState(c => c+1)} onDblclick={()=>{
-      console.log("ondblclick activated")
-      }} style="user-select: none">
-      Count: {state}
+    <h1 style="user-select: none">
+      <h2 onClick={() => setState((c) => c + 1)}>Count: {state}</h2>
+      <h3
+        onDblclick={() => {
+          console.log("ondblclick activated");
+          return setState2((c) => c + 2);
+        }}
+      >
+        Count2: {state2}
+      </h3>
+      <h4 onKeyDown={(e) => setState3(c=> c+e)}>
+        keypresses: {state3}
+      </h4>
     </h1>
-  )
+  );
 }
 
-
-const funcElement = <Counter />
-
+const funcElement = <Counter />;
 
 const updateValue = (e) => rerender(e.target.value);
 
@@ -337,7 +372,6 @@ const rerender = (value) => {
   );
   render(element, container);
 };
-
 
 let greatGrandChild1 = createElement(
   "h4",
@@ -384,10 +418,14 @@ let testParent = createElement(
 
 /** @jsx createElement */
 const testParent2 = (
-  <h1 title="test parent"> test parent {testChild1}{testChild2}</h1>
-)
+  <h1 title="test parent">
+    {" "}
+    test parent {testChild1}
+    {testChild2}
+  </h1>
+);
 
-console.log("test parent to element is: ", testParent2)
+console.log("test parent to element is: ", testParent2);
 
 let container = document.getElementById("root");
 
