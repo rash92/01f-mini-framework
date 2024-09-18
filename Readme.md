@@ -22,9 +22,15 @@ add event handling. not allowed to use addeventlistener, use things like 'onclic
 - add a record of existing listeners to each dom element for each type of event, and then check if the event listener already exists before adding/ removing.
 - implement capturing and bubbling events?
 
-make tests using jest
+Make frontend:
+ - should have enough in framework to do this
+ - new file with imports and then create elements with jsx style
 
-redo with typescript
+redo with typescript?
+
+ - make tests using jest
+ - more organized, different files?
+ - minireact should be compartmentalized so should be able to slot in redone with typescript one
 
 
 
