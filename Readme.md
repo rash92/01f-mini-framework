@@ -20,6 +20,7 @@ make a server to be run from package.json with npm instead of live server?
 add event handling. not allowed to use addeventlistener, use things like 'onclick', 'ondblclick', 'onkeydown', 'onmouseover'
 -currently has these but can only have one listener per element, may want to make elements able to have more than one and remove specific ones, instead of just setting listeners of a type to null.
 - add a record of existing listeners to each dom element for each type of event, and then check if the event listener already exists before adding/ removing.
+- implement capturing and bubbling events?
 
 make tests using jest
 
