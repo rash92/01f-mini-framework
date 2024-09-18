@@ -34,5 +34,9 @@ make a useEffects hook? useRef? useMemo? useCallback?
 
 look at optional extensions in epilogue
 
+links:
+docs for addEventListener:
+https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+
 spec for todoMVC:
 https://github.com/tastejs/todomvc/blob/master/app-spec.md
