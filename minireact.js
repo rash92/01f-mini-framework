@@ -42,6 +42,9 @@ function createDom(fiber) {
       case "mouseover":
         dom.onmouseover = callback
         break;
+      case "input":
+        dom.oninput = callback
+        break;
       default:
         console.log("can't add event to listner: unknown event type")
         break;
@@ -60,6 +63,9 @@ function createDom(fiber) {
         break;
       case "mouseover":
         dom.onmouseover = null
+        break;
+      case "input":
+        dom.oninput = null
         break;
       default:
         console.log("can't remove event from listener: unknown event type to remove")
@@ -82,6 +88,7 @@ const getEventType = (name) => name.toLowerCase().substring(2);
 function updateDom(dom, prevProps, nextProps) {
   //unsure if order of these matters? doing same order as guide
   //remove old or changed event listeners
+  console.log("attempting to update dom: ", dom, "with prevProps: ", prevProps, "and nextProps: ", nextProps)
   Object.keys(prevProps)
     .filter(isEvent)
     .filter((key) => !(key in nextProps) || isNew(prevProps, nextProps)(key))
@@ -373,61 +380,42 @@ const rerender = (value) => {
   render(element, container);
 };
 
-let greatGrandChild1 = createElement(
-  "h4",
-  { title: "greatgrandchild 1" },
-  "i am greatgrandchild 1 ",
-  "youngest of all"
-);
+/** @jsx createElement */
+function TodoList(props){
+  // [taskList, setTaskList] = useState([])
+  console.log("children of todolist: ", props["children"])
+  Object.keys(props).forEach((key) => console.log("property key: ", key,"prop value: ", props[key], "prop type: ", typeof props[key]))
+  let children = props.children
+  console.log("first child right before return", children[0] ? children[0]:"no children")
+  return (
+    <div>
+    <p>before input box</p>
+    <input id="todo-input" type="text" class="new-todo" placeholder="next task?">test in middle of input</input>
+    <p>after input box</p>
+    <p>child 1</p>
+    </div>
+  )
+}
 
-let grandChild1 = createElement(
-  "h3",
-  { title: "grandchild 1" },
-  "i am grandchild 1",
-  greatGrandChild1
-);
 
-let grandChild2 = createElement(
-  "h3",
-  { title: "grandchild 2" },
-  "i am grandchild 2"
-);
-
-let testChild1 = createElement(
-  "h2",
-  { title: "child 1" },
-  "i am child 1",
-  grandChild1,
-  grandChild2
-);
-
-let testChild2 = createElement(
-  "h2",
-  { title: "child 2" },
-  "I am child 2",
-  " last of my line"
-);
-
-let testParent = createElement(
-  "h1",
-  { title: "parent" },
-  "test parent",
-  testChild1,
-  testChild2
-);
 
 /** @jsx createElement */
-const testParent2 = (
-  <h1 title="test parent">
-    {" "}
-    test parent {testChild1}
-    {testChild2}
-  </h1>
-);
+function TodoItem(props){
+  console.log("props of todoitem: ", props, "children of todoitem: ", props.children)
+  return (
+    <div>{props.children[0]}</div>
+  )
+}
 
-console.log("test parent to element is: ", testParent2);
+const todolist = <TodoList testpropnum={3} testproptext="test">
+  <TodoItem>test child for todo item 1</TodoItem>
+</TodoList>
+
+const todoitem = <TodoItem>todo item 1</TodoItem>
 
 let container = document.getElementById("root");
 
-render(funcElement, container);
+
+
+render(todolist, container);
 // rerender("world")
