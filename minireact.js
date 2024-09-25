@@ -72,6 +72,7 @@ function createDom(fiber) {
         break;
     }
   };
+  
   updateDom(dom, {}, fiber.props);
   
 
@@ -88,7 +89,11 @@ const getEventType = (name) => name.toLowerCase().substring(2);
 function updateDom(dom, prevProps, nextProps) {
   //unsure if order of these matters? doing same order as guide
   //remove old or changed event listeners
-  console.log("attempting to update dom: ", dom, "with prevProps: ", prevProps, "and nextProps: ", nextProps)
+  // console.log("attempting to update dom: ", dom, "with prevProps: ", prevProps, "and nextProps: ", nextProps)
+  if (!nextProps){
+    console.log("unable to update dom, nextProps passed in is: ", nextProps)
+    return
+  }
   Object.keys(prevProps)
     .filter(isEvent)
     .filter((key) => !(key in nextProps) || isNew(prevProps, nextProps)(key))
@@ -185,6 +190,7 @@ let deletions = null;
 function workLoop(deadline) {
   let done = false;
   while (nextUnitOfWork && !done) {
+    console.log("workloop currently performing unitofwork: ", nextUnitOfWork)
     nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
     done = deadline.timeRemaining() < 1;
   }
@@ -212,7 +218,9 @@ function updateHostComponent(fiber) {
   if (!fiber.dom) {
     fiber.dom = createDom(fiber);
   }
-
+  if (!fiber.props){
+    console.log("fiber.props missing, fiber is: ", fiber)
+  }
   const children = fiber.props.children;
   reconcileChildren(fiber, children);
 }
@@ -220,6 +228,10 @@ function updateHostComponent(fiber) {
 //takes in a fiber to perform tasks on, then returns next fiber to work on next.
 //order is child, if no children sibling, if no siblings 'uncle'.
 function performUnitOfWork(fiber) {
+  if (!fiber || !fiber.type){
+    console.log("issue performing unit of work for fiber: ", fiber)
+  }
+  
   if (fiber.type instanceof Function) {
     updateFunctionComponent(fiber);
   } else {
@@ -383,16 +395,18 @@ const rerender = (value) => {
 /** @jsx createElement */
 function TodoList(props){
   // [taskList, setTaskList] = useState([])
-  console.log("children of todolist: ", props["children"])
+  
   Object.keys(props).forEach((key) => console.log("property key: ", key,"prop value: ", props[key], "prop type: ", typeof props[key]))
-  let children = props.children
+  const children = props.children
+  console.log("children of todolist: ", children)
   console.log("first child right before return", children[0] ? children[0]:"no children")
   return (
     <div>
     <p>before input box</p>
     <input id="todo-input" type="text" class="new-todo" placeholder="next task?">test in middle of input</input>
     <p>after input box</p>
-    <p>child 1</p>
+    <p>child 1: {children[0]}</p>
+    
     </div>
   )
 }
@@ -401,14 +415,15 @@ function TodoList(props){
 
 /** @jsx createElement */
 function TodoItem(props){
-  console.log("props of todoitem: ", props, "children of todoitem: ", props.children)
+  console.log("props of todoitem: ", props, "value of todoitem: ", props.children[0].props.nodeValue)
   return (
-    <div>{props.children[0]}</div>
+    <div>{props.children[0].props.nodeValue}</div>
   )
 }
 
 const todolist = <TodoList testpropnum={3} testproptext="test">
   <TodoItem>test child for todo item 1</TodoItem>
+  <TodoItem>second test child for todo item 1</TodoItem>
 </TodoList>
 
 const todoitem = <TodoItem>todo item 1</TodoItem>
