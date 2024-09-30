@@ -27,54 +27,55 @@ function createDom(fiber) {
       : document.createElement(fiber.type);
 
   dom.customAddEventListener = (type, callback) => {
-    console.log("custom listener added with type: ", type, "callback: ", callback, "for dom element: ", dom)
+    // console.log("custom listener added with type: ", type, "callback: ", callback, "for dom element: ", dom)
     switch (type) {
       case "click":
         // dom.addEventListener("click", callback)
-        dom.onclick = callback
+        dom.onclick = callback;
         break;
       case "dblclick":
-        dom.ondblclick = callback
+        dom.ondblclick = callback;
         break;
       case "keydown":
-        dom.onkeydown = callback
+        dom.onkeydown = callback;
         break;
       case "mouseover":
-        dom.onmouseover = callback
+        dom.onmouseover = callback;
         break;
       case "input":
-        dom.oninput = callback
+        dom.oninput = callback;
         break;
       default:
-        console.log("can't add event to listner: unknown event type")
+        console.log("can't add event to listner: unknown event type");
         break;
     }
   };
   dom.customRemoveEventListener = (type, callback) => {
     switch (type) {
       case "click":
-        dom.onclick = null
+        dom.onclick = null;
         break;
       case "dblclick":
-        dom.ondblclick = null
+        dom.ondblclick = null;
         break;
       case "keydown":
-        dom.onkeydown = null
+        dom.onkeydown = null;
         break;
       case "mouseover":
-        dom.onmouseover = null
+        dom.onmouseover = null;
         break;
       case "input":
-        dom.oninput = null
+        dom.oninput = null;
         break;
       default:
-        console.log("can't remove event from listener: unknown event type to remove")
+        console.log(
+          "can't remove event from listener: unknown event type to remove"
+        );
         break;
     }
   };
-  
+
   updateDom(dom, {}, fiber.props);
-  
 
   return dom;
 }
@@ -90,17 +91,15 @@ function updateDom(dom, prevProps, nextProps) {
   //unsure if order of these matters? doing same order as guide
   //remove old or changed event listeners
   // console.log("attempting to update dom: ", dom, "with prevProps: ", prevProps, "and nextProps: ", nextProps)
-  if (!nextProps){
-    console.log("unable to update dom, nextProps passed in is: ", nextProps)
-    return
+  if (!nextProps) {
+    console.log("unable to update dom, nextProps passed in is: ", nextProps);
+    return;
   }
   Object.keys(prevProps)
     .filter(isEvent)
     .filter((key) => !(key in nextProps) || isNew(prevProps, nextProps)(key))
     .forEach((name) =>
-      dom.customRemoveEventListener(
-        getEventType(name), prevProps[name]
-      )
+      dom.customRemoveEventListener(getEventType(name), prevProps[name])
     );
 
   //remove old props
@@ -123,9 +122,7 @@ function updateDom(dom, prevProps, nextProps) {
     .filter(isEvent)
     .filter(isNew(prevProps, nextProps))
     .forEach((name) =>
-      dom.customAddEventListener(
-        getEventType(name), nextProps[name]
-      )
+      dom.customAddEventListener(getEventType(name), nextProps[name])
     );
 }
 
@@ -217,8 +214,8 @@ function updateHostComponent(fiber) {
   if (!fiber.dom) {
     fiber.dom = createDom(fiber);
   }
-  if (!fiber.props){
-    console.log("fiber.props missing, fiber is: ", fiber)
+  if (!fiber.props) {
+    console.log("fiber.props missing, fiber is: ", fiber);
   }
   const children = fiber.props.children;
   reconcileChildren(fiber, children.flat());
@@ -227,10 +224,10 @@ function updateHostComponent(fiber) {
 //takes in a fiber to perform tasks on, then returns next fiber to work on next.
 //order is child, if no children sibling, if no siblings 'uncle'.
 function performUnitOfWork(fiber) {
-  if (!fiber || !fiber.type){
-    console.log("issue performing unit of work for fiber: ", fiber)
+  if (!fiber || !fiber.type) {
+    console.log("issue performing unit of work for fiber: ", fiber);
   }
-  
+
   if (fiber.type instanceof Function) {
     updateFunctionComponent(fiber);
   } else {
@@ -350,15 +347,10 @@ function useState(initial) {
 //testing
 
 /** @jsx createElement */
-function App(props) {
-  return <h1>Hi {props.name}</h1>;
-}
-
-/** @jsx createElement */
 function Counter(props) {
   const [state, setState] = useState(1);
   const [state2, setState2] = useState(1);
-  const [state3, setState3] = useState("")
+  const [state3, setState3] = useState("");
   return (
     <h1 style="user-select: none">
       <h2 onClick={() => setState((c) => c + 1)}>Count: {state}</h2>
@@ -370,9 +362,7 @@ function Counter(props) {
       >
         Count2: {state2}
       </h3>
-      <h4 onKeyDown={(e) => setState3(c=> c+e)}>
-        keypresses: {state3}
-      </h4>
+      <h4 onKeyDown={(e) => setState3((c) => c + e)}>keypresses: {state3}</h4>
     </h1>
   );
 }
@@ -381,59 +371,55 @@ const funcElement = <Counter />;
 
 const updateValue = (e) => rerender(e.target.value);
 
-const rerender = (value) => {
-  const element = createElement(
-    "div",
-    {},
-    createElement("input", { onInput: updateValue, value: value }),
-    createElement("h2", {}, value)
+/** @jsx createElement */
+function TodoList({ children }) {
+  const [preview, setPreview] = useState("");
+  const [taskList, setTasklist] = useState([]);
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      setTasklist((oldArr) => [...oldArr, <TodoItem>{preview}</TodoItem>]);
+      setPreview(() => "");
+    } else {
+      setPreview((prev) => prev + e.key);
+    }
+  };
+
+  console.log("preview: ", preview, "task list: ", taskList);
+  return (
+    <header class="header">
+      <h1>todos</h1>
+      <div class="input-container">
+        <input
+          id="todo-input"
+          class="new-todo"
+          type="text"
+          placeholder="What needs to be done?"
+          value={preview}
+          onKeyDown={handleKeyDown}
+        ></input>
+      </div>
+      <ul>{taskList}</ul>
+    </header>
   );
-  render(element, container);
-};
-
-/** @jsx createElement */
-function Application(props){
-  return (
-    <div>
-      {props.children[0]}
-    </div>
-    
-  )
 }
 
 /** @jsx createElement */
-function TodoList({children}){
-  // [taskList, setTaskList] = useState([])
-  return (
-    <div>{children}</div>
-  )
+function TodoItem({ children }) {
+  return <div>To do item: {children}</div>;
 }
 
+const todoitem = <TodoItem>todo item in variable</TodoItem>;
 
-/** @jsx createElement */
-function TodoItem({children}){
-  console.log("children of todoitem: ", children, "value of todoitem: ", children[0].props.nodeValue)
-  return (
-    <div>{children}</div>
-  )
-}
-
-const todoitem = <TodoItem>todo item in variable</TodoItem>
-
-
-const todolist = <TodoList>
-  <TodoItem>test child for todo item 1</TodoItem>
-  <TodoItem>second test child for todo item 1</TodoItem>
-  {todoitem}
-</TodoList>
-
-
-const app = <Application>{todolist}</Application>
-
+const todolist = (
+  <TodoList>
+    <TodoItem>test child for todo item 1</TodoItem>
+    <TodoItem>second test child for todo item 1</TodoItem>
+    {todoitem}
+  </TodoList>
+);
 
 let container = document.getElementById("root");
 
+render(todolist, container);
 
-
-render(app, container);
-// rerender("world")
