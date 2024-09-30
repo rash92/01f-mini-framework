@@ -190,7 +190,6 @@ let deletions = null;
 function workLoop(deadline) {
   let done = false;
   while (nextUnitOfWork && !done) {
-    console.log("workloop currently performing unitofwork: ", nextUnitOfWork)
     nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
     done = deadline.timeRemaining() < 1;
   }
@@ -211,7 +210,7 @@ function updateFunctionComponent(fiber) {
   hookIndex = 0;
   wipFiber.hooks = [];
   const children = [fiber.type(fiber.props)];
-  reconcileChildren(fiber, children);
+  reconcileChildren(fiber, children.flat());
 }
 
 function updateHostComponent(fiber) {
@@ -222,7 +221,7 @@ function updateHostComponent(fiber) {
     console.log("fiber.props missing, fiber is: ", fiber)
   }
   const children = fiber.props.children;
-  reconcileChildren(fiber, children);
+  reconcileChildren(fiber, children.flat());
 }
 
 //takes in a fiber to perform tasks on, then returns next fiber to work on next.
@@ -393,44 +392,48 @@ const rerender = (value) => {
 };
 
 /** @jsx createElement */
-function TodoList(props){
-  // [taskList, setTaskList] = useState([])
-  
-  Object.keys(props).forEach((key) => console.log("property key: ", key,"prop value: ", props[key], "prop type: ", typeof props[key]))
-  const children = props.children
-  console.log("children of todolist: ", children)
-  console.log("first child right before return", children[0] ? children[0]:"no children")
+function Application(props){
   return (
     <div>
-    <p>before input box</p>
-    <input id="todo-input" type="text" class="new-todo" placeholder="next task?">test in middle of input</input>
-    <p>after input box</p>
-    <p>child 1: {children[0]}</p>
-    
+      {props.children[0]}
     </div>
+    
   )
 }
 
+/** @jsx createElement */
+function TodoList({children}){
+  // [taskList, setTaskList] = useState([])
+  return (
+    <div>{children}</div>
+  )
+}
 
 
 /** @jsx createElement */
-function TodoItem(props){
-  console.log("props of todoitem: ", props, "value of todoitem: ", props.children[0].props.nodeValue)
+function TodoItem({children}){
+  console.log("children of todoitem: ", children, "value of todoitem: ", children[0].props.nodeValue)
   return (
-    <div>{props.children[0].props.nodeValue}</div>
+    <div>{children}</div>
   )
 }
 
-const todolist = <TodoList testpropnum={3} testproptext="test">
+const todoitem = <TodoItem>todo item in variable</TodoItem>
+
+
+const todolist = <TodoList>
   <TodoItem>test child for todo item 1</TodoItem>
   <TodoItem>second test child for todo item 1</TodoItem>
+  {todoitem}
 </TodoList>
 
-const todoitem = <TodoItem>todo item 1</TodoItem>
+
+const app = <Application>{todolist}</Application>
+
 
 let container = document.getElementById("root");
 
 
 
-render(todolist, container);
+render(app, container);
 // rerender("world")
