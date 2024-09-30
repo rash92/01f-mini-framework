@@ -14,7 +14,14 @@ To run after changes:
     
 TODO:
 
--currently has single event listerner per type per element, may want to make elements able to have more than one and remove specific ones, instead of just setting listeners of a type to null.
+features:
+- removing and checking done todolist items
+- select all button
+- all, active, completed, clear completed buttons
+- sanitizing inputs, currently directly checking key pressed e.g. pressing shift will input 'Shift'
+- check actual spec (below) for anything else
+
+- currently has single event listerner per type per element, may want to make elements able to have more than one and remove specific ones, instead of just setting listeners of a type to null.
 - add a record of existing listeners to each dom element for each type of event, and then check if the event listener already exists before adding/ removing.
 - implement capturing and bubbling events?
 
