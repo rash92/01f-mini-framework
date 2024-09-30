@@ -387,12 +387,12 @@ function TodoList({ children }) {
 
   console.log("preview: ", preview, "task list: ", taskList);
   return (
-    <header class="header">
+    <header className="header">
       <h1>todos</h1>
-      <div class="input-container">
+      <div className="input-container">
         <input
           id="todo-input"
-          class="new-todo"
+          className="new-todo"
           type="text"
           placeholder="What needs to be done?"
           value={preview}
