@@ -20,6 +20,7 @@ TODO:
 
 Make frontend:
  - should have enough in framework to do this
+ - figure out why styles not working
  - new file with imports and then create elements with jsx style
 
 redo with typescript?
