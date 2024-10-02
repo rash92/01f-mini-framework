@@ -386,27 +386,59 @@ function TodoList({ children }) {
   };
 
   console.log("preview: ", preview, "task list: ", taskList);
-  return (
-    <header className="header">
-      <h1>todos</h1>
-      <div className="input-container">
-        <input
-          id="todo-input"
-          className="new-todo"
-          type="text"
-          placeholder="What needs to be done?"
-          value={preview}
-          onKeyDown={handleKeyDown}
-        ></input>
-      </div>
-      <ul>{taskList}</ul>
-    </header>
-  );
+  return [
+    <section id="root" className="todoapp">
+      <header className="header">
+        <h1>todos</h1>
+        <div className="input-container">
+          <input
+            id="todo-input"
+            className="new-todo"
+            type="text"
+            placeholder="What needs to be done?"
+            value={preview}
+            onKeyDown={handleKeyDown}
+          ></input>
+        </div>
+      </header>
+      <main className="main">
+      <ul className="todo-list">{taskList}</ul>
+      </main>
+      <footer className="footer">
+        <span className="todo-count">x items left</span>
+        <ul className="filters">
+          <li><a>all</a></li>
+          <li><a>active</a></li>
+          <li><a>completed</a></li>
+        </ul>
+        <button className="clear-completed">Clear Completed</button>
+      </footer>
+    </section>,
+    <footer className="info">
+      <p>Double-click to edit a todo</p>
+      <p>Created by the TodoMVC Team</p>
+      <p>
+        Part of <a href="http://todomvc.com">TodoMVC</a>
+      </p>
+    </footer>,
+  ];
 }
 
 /** @jsx createElement */
 function TodoItem({ children }) {
-  return <div>To do item: {children}</div>;
+  const [complete, setComplete] = useState(false);
+  return (
+    <li>
+      <div>
+        <input
+          className="toggle"
+          type="checkbox"
+          onClick={() => setComplete((complete) => !complete)}
+        ></input>
+        <label>To do item: {children}</label>
+      </div>
+    </li>
+  );
 }
 
 const todoitem = <TodoItem>todo item in variable</TodoItem>;
@@ -419,7 +451,18 @@ const todolist = (
   </TodoList>
 );
 
-let container = document.getElementById("root");
+const footer = (
+  <footer class="info">
+    <p>Double-click to edit a todo</p>
+    <p>Created by the TodoMVC Team</p>
+    <p>
+      Part of <a href="http://todomvc.com">TodoMVC</a>
+    </p>
+  </footer>
+);
+
+let container = document.body;
 
 render(todolist, container);
 
+// render(footer, container)
