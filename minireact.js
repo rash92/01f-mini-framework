@@ -370,18 +370,15 @@ function useState(initial) {
 
 /** @jsx createElement */
 function TodoList({ children }) {
-  const [preview, setPreview] = useState("");
   const [taskList, setTasklist] = useState([]);
-  const [completedCount, setCompletedCount] = useState(0)
+  const [completedCount, setCompletedCount] = useState(0);
 
   //redo to handle counting total completed with callback function passed in?
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
-      const newTask = e.target.value
+      const newTask = e.target.value;
       setTasklist((oldArr) => [...oldArr, <TodoItem>{newTask}</TodoItem>]);
       e.target.value = "";
-    } else {
-      setPreview((prev) => prev + e.key);
     }
   };
 
@@ -402,30 +399,30 @@ function TodoList({ children }) {
         </div>
       </header>
       <main className="main">
-      <ul className="todo-list">{taskList}</ul>
+        <ul className="todo-list">{taskList}</ul>
       </main>
       <footer className="footer">
         <span className="todo-count">{completedCount} items left</span>
         <ul className="filters">
-          <li><a>all</a></li>
-          <li><a>active</a></li>
-          <li><a>completed</a></li>
+          <li>
+            <a>all</a>
+          </li>
+          <li>
+            <a>active</a>
+          </li>
+          <li>
+            <a>completed</a>
+          </li>
         </ul>
         <button className="clear-completed">Clear Completed</button>
       </footer>
     </section>,
-    <footer className="info">
-      <p>Double-click to edit a todo</p>
-      <p>Created by the TodoMVC Team</p>
-      <p>
-        Part of <a href="http://todomvc.com">TodoMVC</a>
-      </p>
-    </footer>,
+    footer,
   ];
 }
 
 /** @jsx createElement */
-function TodoItem({children}) {
+function TodoItem({ children }) {
   const [complete, setComplete] = useState(false);
   return (
     <li>
@@ -433,10 +430,15 @@ function TodoItem({children}) {
         <input
           className="toggle"
           type="checkbox"
-          onClick={()=>setComplete(old=>!old)}
+          onClick={() => setComplete((old) => !old)}
         ></input>
         <label>To do item: {children}</label>
-        <button className="destroy" onClick={()=>console.log("tried to destroy item, not implemented yet")}></button>
+        <button
+          className="destroy"
+          onClick={() =>
+            console.log("tried to destroy item, not implemented yet")
+          }
+        ></button>
       </div>
     </li>
   );
@@ -453,7 +455,7 @@ const todolist = (
 );
 
 const footer = (
-  <footer class="info">
+  <footer className="info">
     <p>Double-click to edit a todo</p>
     <p>Created by the TodoMVC Team</p>
     <p>
