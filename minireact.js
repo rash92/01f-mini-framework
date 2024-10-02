@@ -425,7 +425,7 @@ function TodoList({ children }) {
 }
 
 /** @jsx createElement */
-function TodoItem({ children}) {
+function TodoItem({children}) {
   const [complete, setComplete] = useState(false);
   return (
     <li>
@@ -436,6 +436,7 @@ function TodoItem({ children}) {
           onClick={()=>setComplete(old=>!old)}
         ></input>
         <label>To do item: {children}</label>
+        <button className="destroy" onClick={()=>console.log("tried to destroy item, not implemented yet")}></button>
       </div>
     </li>
   );
