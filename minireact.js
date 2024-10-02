@@ -373,11 +373,29 @@ function TodoList({ children }) {
   const [taskList, setTasklist] = useState([]);
   const [completedCount, setCompletedCount] = useState(0);
 
+  const increaseCompletedCount = () => {
+    console.log(completedCount, "before")
+    setCompletedCount((prev) => prev + 1);
+    console.log(completedCount, "after")
+  };
+  const decreaseCompletedCount = () => {
+    setCompletedCount((prev) => prev - 1);
+  };
+
+  console.log("after definition of increaser and decreaser, completedcount and setter",completedCount, setCompletedCount)
   //redo to handle counting total completed with callback function passed in?
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       const newTask = e.target.value;
-      setTasklist((oldArr) => [...oldArr, <TodoItem>{newTask}</TodoItem>]);
+      setTasklist((oldArr) => [
+        ...oldArr,
+        <TodoItem
+          onComplete={increaseCompletedCount}
+          onUncomplete={decreaseCompletedCount}
+        >
+          {newTask}
+        </TodoItem>,
+      ]);
       e.target.value = "";
     }
   };
@@ -414,7 +432,7 @@ function TodoList({ children }) {
             <a>completed</a>
           </li>
         </ul>
-        <button className="clear-completed">Clear Completed</button>
+        <button className="clear-completed" onClick={increaseCompletedCount}>Clear Completed</button>
       </footer>
     </section>,
     footer,
@@ -422,16 +440,12 @@ function TodoList({ children }) {
 }
 
 /** @jsx createElement */
-function TodoItem({ children }) {
-  const [complete, setComplete] = useState(false);
+function TodoItem({ children, onComplete, onUncomplete }) {
+  // const [complete, setComplete] = useState(false);
   return (
     <li>
       <div>
-        <input
-          className="toggle"
-          type="checkbox"
-          onClick={() => setComplete((old) => !old)}
-        ></input>
+        <input className="toggle" type="checkbox" onClick={onComplete}></input>
         <label>To do item: {children}</label>
         <button
           className="destroy"

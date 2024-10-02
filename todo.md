@@ -23,7 +23,7 @@ main:
 - hide 'clear completed' while none are completed
 - redo file structure, separate out framework from app
 - write readme
-- pass callback functions down to children so pass state back and forth e.g. to count how many are completed
+- pass callback functions down to children so pass state back and forth e.g. to count how many are completed. currently if directly in returned child (in the clear completed button in footer as a test) it works but not in the todoilst items that are added.
 - check actual spec (below) for anything else
 
 stretch:
