@@ -27,7 +27,6 @@ function createDom(fiber) {
       : document.createElement(fiber.type);
 
   dom.customAddEventListener = (type, callback) => {
-    // console.log("custom listener added with type: ", type, "callback: ", callback, "for dom element: ", dom)
     switch (type) {
       case "click":
         // dom.addEventListener("click", callback)
@@ -369,8 +368,6 @@ function useState(initial) {
 
 // const funcElement = <Counter />;
 
-// const updateValue = (e) => rerender(e.target.value);
-
 /** @jsx createElement */
 function TodoList({ children }) {
   const [preview, setPreview] = useState("");
@@ -378,7 +375,6 @@ function TodoList({ children }) {
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
-      console.log("enter pressed, value is: ", e.target.value)
       const newTask = e.target.value
       setTasklist((oldArr) => [...oldArr, <TodoItem>{newTask}</TodoItem>]);
       e.target.value = "";
@@ -386,17 +382,7 @@ function TodoList({ children }) {
       setPreview((prev) => prev + e.key);
     }
   };
-  
 
-  // const handleKeyDown = (e) => {
-  //   if (e.key === "Enter") {
-  //     set
-  //   }
-  // }
-
-  const task1 = taskList[0]?taskList[0].props:""
-  // console.log("preview: ", preview, "task list: ", taskList);
-  console.log("first task", task1)
   return [
     <section id="root" className="todoapp">
       <header className="header">
@@ -476,5 +462,3 @@ const footer = (
 let container = document.body;
 
 render(todolist, container);
-
-// render(footer, container)
