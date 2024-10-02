@@ -21,6 +21,7 @@ features:
 - sanitizing inputs, currently directly checking key pressed e.g. pressing shift will input 'Shift'
 - hide main and footer when no todos available
 - hide 'clear completed' while none are completed
+- redo file structure, separate out framework from app
 - check actual spec (below) for anything else
 
 - currently has single event listerner per type per element, may want to make elements able to have more than one and remove specific ones, instead of just setting listeners of a type to null.
