@@ -425,9 +425,8 @@ function TodoList({ children }) {
 }
 
 /** @jsx createElement */
-function TodoItem({ children, onToggle, currentCount }) {
+function TodoItem({ children}) {
   const [complete, setComplete] = useState(false);
-  console.log("passed in callback ontoggle: ", onToggle, "passed in count: ", currentCount)
   return (
     <li>
       <div>
