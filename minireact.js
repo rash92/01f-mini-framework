@@ -385,7 +385,9 @@ function TodoList({ children }) {
     }
   };
 
-  console.log("preview: ", preview, "task list: ", taskList);
+  const task1 = taskList[0]?taskList[0].props:""
+  // console.log("preview: ", preview, "task list: ", taskList);
+  console.log("first task", task1)
   return [
     <section id="root" className="todoapp">
       <header className="header">
