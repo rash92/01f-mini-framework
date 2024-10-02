@@ -372,7 +372,9 @@ function useState(initial) {
 function TodoList({ children }) {
   const [preview, setPreview] = useState("");
   const [taskList, setTasklist] = useState([]);
+  const [completedCount, setCompletedCount] = useState(0)
 
+  //redo to handle counting total completed with callback function passed in?
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       const newTask = e.target.value
@@ -403,7 +405,7 @@ function TodoList({ children }) {
       <ul className="todo-list">{taskList}</ul>
       </main>
       <footer className="footer">
-        <span className="todo-count">x items left</span>
+        <span className="todo-count">{completedCount} items left</span>
         <ul className="filters">
           <li><a>all</a></li>
           <li><a>active</a></li>
@@ -423,15 +425,16 @@ function TodoList({ children }) {
 }
 
 /** @jsx createElement */
-function TodoItem({ children }) {
+function TodoItem({ children, onToggle, currentCount }) {
   const [complete, setComplete] = useState(false);
+  console.log("passed in callback ontoggle: ", onToggle, "passed in count: ", currentCount)
   return (
     <li>
       <div>
         <input
           className="toggle"
           type="checkbox"
-          onClick={() => setComplete((complete) => !complete)}
+          onClick={()=>setComplete(old=>!old)}
         ></input>
         <label>To do item: {children}</label>
       </div>
