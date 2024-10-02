@@ -346,30 +346,30 @@ function useState(initial) {
 
 //testing
 
-/** @jsx createElement */
-function Counter(props) {
-  const [state, setState] = useState(1);
-  const [state2, setState2] = useState(1);
-  const [state3, setState3] = useState("");
-  return (
-    <h1 style="user-select: none">
-      <h2 onClick={() => setState((c) => c + 1)}>Count: {state}</h2>
-      <h3
-        onDblclick={() => {
-          console.log("ondblclick activated");
-          return setState2((c) => c + 2);
-        }}
-      >
-        Count2: {state2}
-      </h3>
-      <h4 onKeyDown={(e) => setState3((c) => c + e)}>keypresses: {state3}</h4>
-    </h1>
-  );
-}
+// /** @jsx createElement */
+// function Counter(props) {
+//   const [state, setState] = useState(1);
+//   const [state2, setState2] = useState(1);
+//   const [state3, setState3] = useState("");
+//   return (
+//     <h1 style="user-select: none">
+//       <h2 onClick={() => setState((c) => c + 1)}>Count: {state}</h2>
+//       <h3
+//         onDblclick={() => {
+//           console.log("ondblclick activated");
+//           return setState2((c) => c + 2);
+//         }}
+//       >
+//         Count2: {state2}
+//       </h3>
+//       <h4 onKeyDown={(e) => setState3((c) => c + e)}>keypresses: {state3}</h4>
+//     </h1>
+//   );
+// }
 
-const funcElement = <Counter />;
+// const funcElement = <Counter />;
 
-const updateValue = (e) => rerender(e.target.value);
+// const updateValue = (e) => rerender(e.target.value);
 
 /** @jsx createElement */
 function TodoList({ children }) {
@@ -378,12 +378,21 @@ function TodoList({ children }) {
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
-      setTasklist((oldArr) => [...oldArr, <TodoItem>{preview}</TodoItem>]);
-      setPreview(() => "");
+      console.log("enter pressed, value is: ", e.target.value)
+      const newTask = e.target.value
+      setTasklist((oldArr) => [...oldArr, <TodoItem>{newTask}</TodoItem>]);
+      e.target.value = "";
     } else {
       setPreview((prev) => prev + e.key);
     }
   };
+  
+
+  // const handleKeyDown = (e) => {
+  //   if (e.key === "Enter") {
+  //     set
+  //   }
+  // }
 
   const task1 = taskList[0]?taskList[0].props:""
   // console.log("preview: ", preview, "task list: ", taskList);
@@ -398,8 +407,9 @@ function TodoList({ children }) {
             className="new-todo"
             type="text"
             placeholder="What needs to be done?"
-            value={preview}
+            value=""
             onKeyDown={handleKeyDown}
+            autofocus
           ></input>
         </div>
       </header>
