@@ -18,11 +18,12 @@ main:
 - removing and checking done todolist items
 - select all button
 - all, active, completed, clear completed buttons
-- sanitizing inputs, currently directly checking key pressed e.g. pressing shift will input 'Shift'
+- sanitizing inputs, currently directly checking key pressed e.g. pressing shift will input 'Shift'. spec says to check codes rather than values for keys (i.e. don't check ==='Enter' etc.)
 - hide main and footer when no todos available
 - hide 'clear completed' while none are completed
 - redo file structure, separate out framework from app
 - write readme
+- pass callback functions down to children so pass state back and forth e.g. to count how many are completed
 - check actual spec (below) for anything else
 
 stretch:
