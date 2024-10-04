@@ -378,7 +378,7 @@ function App() {
 
   return [
     <section id="root" className="todoapp">
-      <InputHeader onEnter={handleEnter}></InputHeader>
+      <InputHeader onEnter={handleEnter} ></InputHeader>
       <ToDoList taskList={taskList} onDelete={deleteTask} onToggleComplete={onToggleComplete}></ToDoList>
       <ToDoListFooter
         onClear={clearCompleted}
@@ -408,35 +408,61 @@ function InputHeader({ onEnter }) {
   );
 }
 
-function ToDoList({ taskList, onDelete, onToggleComplete }) {
+function ToDoList({ taskList, onDelete, onToggleComplete, onEsc }) {
   
   return (
     <main className="main">
       <ul className="todo-list">{taskList.map(
         (item, index) => (
-          <TodoItem completed={item.completed} id={item.id} onToggleComplete={onToggleComplete} onDelete={onDelete}>{item.task}</TodoItem>
+          <TodoItem completed={item.completed} id={item.id} onToggleComplete={onToggleComplete} onDelete={onDelete} text={item.task}></TodoItem>
         )
       )}</ul>
     </main>
   );
 }
 
-function TodoItem({ children, id, onToggleComplete, onDelete, completed }) {
-  return (
-    <li>
-      <div>
+function TodoItem({ text, id, onToggleComplete, onDelete, completed }) {
+  const [editing, setEditing] = useState(false)
+  const onDblclick = () => {
+    console.log("double click detected on item with id: ", id)
+    setEditing((old)=>true)
+  }
+  const onKeyDown = (e) => {
+    if (e.key === "Enter"){
+      console.log("enter key detected in: ", id)
+      setEditing((old) => false)
+    }
+    if (e.key === "Escape"){
+      console.log("esc key detected on item with id: ", id)
+    }
+    
+  }
+
+  const viewingItem = (
+    <div className="view">
         <input
           className="toggle"
           type="checkbox"
           onClick={()=>{onToggleComplete(id)}}
           checked={completed}
         ></input>
-        <label>To do item id: {id}: {children}, </label>
+        <label for="" onDblclick={onDblclick} onKeyDown={onKeyDown}>To do item id: {id}: {text}, </label>
         <button
           className="destroy"
           onClick={()=>onDelete(id)}
         ></button>
       </div>
+  )
+
+  const editingItem = (
+    <div className="view">
+      <input onKeyDown={onKeyDown} label="Edit Todo Input" defaultValue={text}></input>
+    </div>
+  )
+
+  return (
+    <li >
+      {editing?editingItem:viewingItem}
     </li>
   );
 }
