@@ -353,7 +353,11 @@ function App() {
     setTasklist((taskList)=>taskList.map(task => task.id === id ? {...task, completed: !task.completed}: task))
   };
   const clearCompleted = ()=>{
-    setTasklist(taskList=> taskList.filter(task=>!task.completed))
+    const completedTasks = taskList.filter(task=>task.completed)
+    console.log("before full task list: ", taskList, "completed tasklist: ", completedTasks)
+    setTasklist(taskList=> [...taskList.filter(task=>!task.completed)])
+    console.log("after full task list: ", taskList, "completed tasklist: ", completedTasks)
+
   }
   const deleteTask = (id) => {
     setTasklist(taskList => [...taskList.filter(task=>task.id!==id)])
@@ -383,26 +387,6 @@ function App() {
     </section>,
     infoFooter,
   ];
-}
-
-/** @jsx createElement */
-function TodoItem({ children, id, onToggleComplete, onDelete }) {
-  return (
-    <li>
-      <div>
-        <input
-          className="toggle"
-          type="checkbox"
-          onClick={()=>{onToggleComplete(id)}}
-        ></input>
-        <label>To do item id: {id}: {children}, </label>
-        <button
-          className="destroy"
-          onClick={()=>onDelete(id)}
-        ></button>
-      </div>
-    </li>
-  );
 }
 
 function InputHeader({ onEnter }) {
@@ -436,6 +420,27 @@ function ToDoList({ taskList, onDelete, onToggleComplete }) {
     </main>
   );
 }
+
+function TodoItem({ children, id, onToggleComplete, onDelete, completed }) {
+  return (
+    <li>
+      <div>
+        <input
+          className="toggle"
+          type="checkbox"
+          onClick={()=>{onToggleComplete(id)}}
+          checked={completed}
+        ></input>
+        <label>To do item id: {id}: {children}, </label>
+        <button
+          className="destroy"
+          onClick={()=>onDelete(id)}
+        ></button>
+      </div>
+    </li>
+  );
+}
+
 
 function ToDoListFooter({ onClear, completedCount }) {
   return (
