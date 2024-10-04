@@ -15,7 +15,8 @@ To run after changes:
 TODO:
 
 main:
-- removing and checking done todolist items - counting works, deleting doesn't want to delete first item it seems?
+- removing and checking done todolist items - 
+    -counting mostly seems to work, as does deleting after adding return in fiber.type=="DELETE" section, however clear completed is still having some issues where on clearing completed remaining tasks may have their completed status switched.
 - select all button
 - all, active, completed, clear completed buttons
 - check codes rather than values for keys (i.e. don't check ==='Enter' etc.)?
