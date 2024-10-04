@@ -134,11 +134,12 @@ function commitRoot() {
 
 function commitDeletion(fiber, domParent) {
   //regular case where non functional component has a dom already
-  if (fiber.dom) {
+  
+  if ( fiber.dom) {
     domParent.removeChild(fiber.dom);
     //handle case with functional components, recursively look for children until find a fiber with a dom
   } else {
-    commitDeletion(fiber.child, domParent);
+    commitDeletion(fiber.firstChild, domParent);
   }
 }
 
@@ -369,106 +370,138 @@ function useState(initial) {
 // const funcElement = <Counter />;
 
 /** @jsx createElement */
-function TodoList({ children }) {
+function App({ children }) {
   const [taskList, setTasklist] = useState([]);
-  const [completedCount, setCompletedCount] = useState(0);
+  // const [completedCount, setCompletedCount] = useState(0);
+  const completedCount = taskList.filter((task)=>!task.completed).length
 
-  const increaseCompletedCount = () => {
-    console.log(completedCount, "before")
-    setCompletedCount((prev) => prev + 1);
-    console.log(completedCount, "after")
-  };
-  const decreaseCompletedCount = () => {
-    setCompletedCount((prev) => prev - 1);
+  // console.log("calculated completed count: ", completedCount)
+  const onToggleComplete = (id) => {
+    console.log("trying to increase completed count due to message from id: ", id);
+    setTasklist((taskList)=>taskList.map((task, index) => 
+      task.id === id ? {...task, completed: !task.completed}: task
+    ))
   };
 
-  console.log("after definition of increaser and decreaser, completedcount and setter",completedCount, setCompletedCount)
+  const clearCompleted = ()=>{
+    console.log("trying to clear all completed tasks")
+  }
+
+  const deleteTask = (id) => {
+    console.log("tried to delete task with id: ", id)
+    console.log("task to be deleted: ", taskList.filter(task=>task.id===id))
+    console.log("other tasks not to be deleted: ", taskList.filter(task=>task.id!==id))
+    const newArr = taskList.filter(task=>task.id!==id)
+    setTasklist(taskList => newArr)
+
+  }
+
   //redo to handle counting total completed with callback function passed in?
-  const handleKeyDown = (e) => {
+  const handleEnter = (e) => {
     if (e.key === "Enter") {
-      const newTask = e.target.value;
-      setTasklist((oldArr) => [
-        ...oldArr,
-        <TodoItem
-          onComplete={increaseCompletedCount}
-          onUncomplete={decreaseCompletedCount}
-        >
-          {newTask}
-        </TodoItem>,
-      ]);
+      const newTask = ({
+        task: e.target.value,
+        id: crypto.randomUUID(),
+        completed: false
+      });
+      setTasklist((oldArr) => [...oldArr, newTask]);
       e.target.value = "";
     }
   };
 
   return [
     <section id="root" className="todoapp">
-      <header className="header">
-        <h1>todos</h1>
-        <div className="input-container">
-          <input
-            id="todo-input"
-            className="new-todo"
-            type="text"
-            placeholder="What needs to be done?"
-            value=""
-            onKeyDown={handleKeyDown}
-            autofocus
-          ></input>
-        </div>
-      </header>
-      <main className="main">
-        <ul className="todo-list">{taskList}</ul>
-      </main>
-      <footer className="footer">
-        <span className="todo-count">{completedCount} items left</span>
-        <ul className="filters">
-          <li>
-            <a>all</a>
-          </li>
-          <li>
-            <a>active</a>
-          </li>
-          <li>
-            <a>completed</a>
-          </li>
-        </ul>
-        <button className="clear-completed" onClick={increaseCompletedCount}>Clear Completed</button>
-      </footer>
+      <InputHeader onEnter={handleEnter}></InputHeader>
+      <ToDoList taskList={taskList} onDelete={deleteTask} onToggleComplete={onToggleComplete}></ToDoList>
+      <ToDoListFooter
+        onClear={clearCompleted}
+        completedCount={completedCount}
+      ></ToDoListFooter>
     </section>,
-    footer,
+    infoFooter,
   ];
 }
 
 /** @jsx createElement */
-function TodoItem({ children, onComplete, onUncomplete }) {
+function TodoItem({ children, id, onToggleComplete, onDelete }) {
   // const [complete, setComplete] = useState(false);
   return (
     <li>
       <div>
-        <input className="toggle" type="checkbox" onClick={onComplete}></input>
-        <label>To do item: {children}</label>
+        <input
+          className="toggle"
+          type="checkbox"
+          onClick={()=>{onToggleComplete(id)}}
+        ></input>
+        <label>To do item id: {id}: {children}, </label>
         <button
           className="destroy"
-          onClick={() =>
-            console.log("tried to destroy item, not implemented yet")
-          }
+          onClick={()=>onDelete(id)}
         ></button>
       </div>
     </li>
   );
 }
 
+function InputHeader({ onEnter }) {
+  return (
+    <header className="header">
+      <h1>todos</h1>
+      <div className="input-container">
+        <input
+          id="todo-input"
+          className="new-todo"
+          type="text"
+          placeholder="What needs to be done?"
+          value=""
+          onKeyDown={onEnter}
+          autofocus
+        ></input>
+      </div>
+    </header>
+  );
+}
+
+function ToDoList({ taskList, onDelete, onToggleComplete }) {
+  
+  return (
+    <main className="main">
+      <ul className="todo-list">{taskList.map(
+        (item, index) => (
+          <TodoItem completed={item.completed} id={item.id} onToggleComplete={onToggleComplete} onDelete={onDelete}>{item.task}</TodoItem>
+        )
+      )}</ul>
+    </main>
+  );
+}
+
+function ToDoListFooter({ onClear, completedCount }) {
+  return (
+    <footer className="footer">
+      <span className="todo-count">{completedCount} items left</span>
+      <ul className="filters">
+        <li>
+          <a>all</a>
+        </li>
+        <li>
+          <a>active</a>
+        </li>
+        <li>
+          <a>completed</a>
+        </li>
+      </ul>
+      <button className="clear-completed" onClick={onClear}>
+        Clear Completed
+      </button>
+    </footer>
+  );
+}
+
 const todoitem = <TodoItem>todo item in variable</TodoItem>;
 
-const todolist = (
-  <TodoList>
-    <TodoItem>test child for todo item 1</TodoItem>
-    <TodoItem>second test child for todo item 1</TodoItem>
-    {todoitem}
-  </TodoList>
-);
+const app = <App></App>
 
-const footer = (
+const infoFooter = (
   <footer className="info">
     <p>Double-click to edit a todo</p>
     <p>Created by the TodoMVC Team</p>
@@ -480,4 +513,4 @@ const footer = (
 
 let container = document.body;
 
-render(todolist, container);
+render(app, container);
