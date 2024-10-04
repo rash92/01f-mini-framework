@@ -15,7 +15,7 @@ To run after changes:
 TODO:
 
 main:
-- removing and checking done todolist items
+- removing and checking done todolist items - counting works, deleting doesn't want to delete first item it seems?
 - select all button
 - all, active, completed, clear completed buttons
 - check codes rather than values for keys (i.e. don't check ==='Enter' etc.)?
