@@ -134,7 +134,7 @@ function commitRoot() {
 
 function commitDeletion(fiber, domParent) {
   //regular case where non functional component has a dom already
-  
+  console.log("trying to delete fiber: ", fiber)
   if ( fiber.dom) {
     domParent.removeChild(fiber.dom);
     //handle case with functional components, recursively look for children until find a fiber with a dom
@@ -370,7 +370,7 @@ function useState(initial) {
 // const funcElement = <Counter />;
 
 /** @jsx createElement */
-function App({ children }) {
+function App() {
   const [taskList, setTasklist] = useState([]);
   // const [completedCount, setCompletedCount] = useState(0);
   const completedCount = taskList.filter((task)=>!task.completed).length
@@ -378,21 +378,21 @@ function App({ children }) {
   // console.log("calculated completed count: ", completedCount)
   const onToggleComplete = (id) => {
     console.log("trying to increase completed count due to message from id: ", id);
-    setTasklist((taskList)=>taskList.map((task, index) => 
+    setTasklist((taskList)=>taskList.map((task) => 
       task.id === id ? {...task, completed: !task.completed}: task
     ))
   };
 
   const clearCompleted = ()=>{
     console.log("trying to clear all completed tasks")
+    setTasklist(taskList=> taskList.filter(task=>!task.completed))
   }
 
   const deleteTask = (id) => {
-    console.log("tried to delete task with id: ", id)
+    console.log("tried to delete task with id: ", id, "full tasklist: ", taskList)
     console.log("task to be deleted: ", taskList.filter(task=>task.id===id))
     console.log("other tasks not to be deleted: ", taskList.filter(task=>task.id!==id))
-    const newArr = taskList.filter(task=>task.id!==id)
-    setTasklist(taskList => newArr)
+    setTasklist(taskList => taskList.filter(task=>task.id!==id))
 
   }
 
