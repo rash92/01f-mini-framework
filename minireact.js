@@ -135,7 +135,7 @@ function commitRoot() {
 function commitDeletion(fiber, domParent) {
   //regular case where non functional component has a dom already
   console.log("trying to delete fiber: ", fiber)
-  if ( fiber.dom) {
+  if (fiber.dom) {
     domParent.removeChild(fiber.dom);
     //handle case with functional components, recursively look for children until find a fiber with a dom
   } else {
@@ -161,6 +161,8 @@ function commitWork(fiber) {
     updateDom(fiber.dom, fiber.alternate.props, fiber.props);
   } else if (fiber.effectTag === "DELETE") {
     commitDeletion(fiber, domParent);
+    //this return bit is not in original tutorial but suggested something like this in one of the pull requests and seems to fix weird deleting issues?
+    return
   }
 
   commitWork(fiber.firstChild);
@@ -339,61 +341,22 @@ function useState(initial) {
   return [hook.state, setState];
 }
 
-//event listener sections, not in tutorial
-
-//replace addEventListener and removeEventListener with custom versions that directly use
-// onclick, ondblclick, onkeydown and any other relevant events.
-
 //testing
-
-// /** @jsx createElement */
-// function Counter(props) {
-//   const [state, setState] = useState(1);
-//   const [state2, setState2] = useState(1);
-//   const [state3, setState3] = useState("");
-//   return (
-//     <h1 style="user-select: none">
-//       <h2 onClick={() => setState((c) => c + 1)}>Count: {state}</h2>
-//       <h3
-//         onDblclick={() => {
-//           console.log("ondblclick activated");
-//           return setState2((c) => c + 2);
-//         }}
-//       >
-//         Count2: {state2}
-//       </h3>
-//       <h4 onKeyDown={(e) => setState3((c) => c + e)}>keypresses: {state3}</h4>
-//     </h1>
-//   );
-// }
-
-// const funcElement = <Counter />;
 
 /** @jsx createElement */
 function App() {
   const [taskList, setTasklist] = useState([]);
-  // const [completedCount, setCompletedCount] = useState(0);
+
   const completedCount = taskList.filter((task)=>!task.completed).length
 
-  // console.log("calculated completed count: ", completedCount)
   const onToggleComplete = (id) => {
-    console.log("trying to increase completed count due to message from id: ", id);
-    setTasklist((taskList)=>taskList.map((task) => 
-      task.id === id ? {...task, completed: !task.completed}: task
-    ))
+    setTasklist((taskList)=>taskList.map(task => task.id === id ? {...task, completed: !task.completed}: task))
   };
-
   const clearCompleted = ()=>{
-    console.log("trying to clear all completed tasks")
     setTasklist(taskList=> taskList.filter(task=>!task.completed))
   }
-
   const deleteTask = (id) => {
-    console.log("tried to delete task with id: ", id, "full tasklist: ", taskList)
-    console.log("task to be deleted: ", taskList.filter(task=>task.id===id))
-    console.log("other tasks not to be deleted: ", taskList.filter(task=>task.id!==id))
-    setTasklist(taskList => taskList.filter(task=>task.id!==id))
-
+    setTasklist(taskList => [...taskList.filter(task=>task.id!==id)])
   }
 
   //redo to handle counting total completed with callback function passed in?
@@ -424,7 +387,6 @@ function App() {
 
 /** @jsx createElement */
 function TodoItem({ children, id, onToggleComplete, onDelete }) {
-  // const [complete, setComplete] = useState(false);
   return (
     <li>
       <div>
@@ -496,11 +458,6 @@ function ToDoListFooter({ onClear, completedCount }) {
     </footer>
   );
 }
-
-const todoitem = <TodoItem>todo item in variable</TodoItem>;
-
-const app = <App></App>
-
 const infoFooter = (
   <footer className="info">
     <p>Double-click to edit a todo</p>
@@ -510,6 +467,10 @@ const infoFooter = (
     </p>
   </footer>
 );
+
+const app = <App></App>
+
+
 
 let container = document.body;
 
