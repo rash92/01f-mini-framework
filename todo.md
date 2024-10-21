@@ -16,6 +16,7 @@ TODO:
 
 main:
 - removing and checking and counting completed todolist items - DONE ???
+- routing (?)
 - select all button
 - all, active, completed, clear completed buttons
 - handle double click and esc when editing todo items
