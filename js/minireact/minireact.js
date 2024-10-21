@@ -480,7 +480,7 @@ function ToDoListFooter({ onClear, completedCount }) {
           <a>active</a>
         </li>
         <li>
-          <a>completed</a>
+          <a>completed 2</a>
         </li>
       </ul>
       <button className="clear-completed" onClick={onClear}>
