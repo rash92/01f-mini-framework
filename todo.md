@@ -22,7 +22,8 @@ main:
 - handle double click and esc when editing todo items
 - hide main and footer when no todos available
 - hide 'clear completed' while none are completed
-- redo file structure, separate out framework from app
+- redo file structure, separate out framework from app (somewhat done?)
+- separate out components into their own folder and import them into app.js
 - write readme
 - pass callback functions down to children so pass state back and forth e.g. to count how many are completed. currently if directly in returned child (in the clear completed button in footer as a test) it works but not in the todoilst items that are added.
 - check actual spec (below) for anything else
