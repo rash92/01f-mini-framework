@@ -3,9 +3,18 @@ import { minireact } from "./minireact/minireact.js";
 /** @jsx minireact.createElement */
 function App() {
     const [taskList, setTasklist] = minireact.useState([]);
+    const [route, setRoute] = minireact.useState("all")
   
     const completedCount = taskList.filter((task)=>!task.completed).length
-  
+
+    const routes = {
+      "all": () => setRoute(()=> "all"), 
+      "completed": () => setRoute(()=> "completed"), 
+      "active": () => setRoute(()=> "active"), 
+      "": () => setRoute(()=> "all")}
+
+    window.onhashchange = () => minireact.routeHandler(routes)
+
     const onToggleComplete = (id) => {
       setTasklist((taskList)=>taskList.map(task => task.id === id ? {...task, completed: !task.completed}: task))
     };
@@ -36,7 +45,7 @@ function App() {
     return [
       <section id="root" className="todoapp">
         <InputHeader onEnter={handleEnter} ></InputHeader>
-        <ToDoList taskList={taskList} onDelete={deleteTask} onToggleComplete={onToggleComplete}></ToDoList>
+        <ToDoList taskList={taskList} onDelete={deleteTask} onToggleComplete={onToggleComplete} route={route}></ToDoList>
         <ToDoListFooter
           onClear={clearCompleted}
           completedCount={completedCount}
@@ -65,17 +74,40 @@ function App() {
     );
   }
   
-  function ToDoList({ taskList, onDelete, onToggleComplete, onEsc }) {
-    
-    return (
-      <main className="main">
-        <ul className="todo-list">{taskList.map(
-          (item, index) => (
-            <TodoItem completed={item.completed} id={item.id} onToggleComplete={onToggleComplete} onDelete={onDelete} text={item.task}></TodoItem>
-          )
-        )}</ul>
-      </main>
-    );
+  function ToDoList({ taskList, onDelete, onToggleComplete, onEsc, route }) {
+    if (route === "all"){
+      return (
+        <main className="main">
+          <ul className="todo-list">{taskList.map(
+            (item, index) => (
+              <TodoItem completed={item.completed} id={item.id} onToggleComplete={onToggleComplete} onDelete={onDelete} text={item.task}></TodoItem>
+            )
+          )}</ul>
+        </main>
+      );
+    }
+    if (route == "completed"){
+      return (
+        <main className="main">
+          <ul className="todo-list">{taskList.filter((task)=> task.completed).map(
+            (item, index) => (
+              <TodoItem completed={item.completed} id={item.id} onToggleComplete={onToggleComplete} onDelete={onDelete} text={item.task}></TodoItem>
+            )
+          )}</ul>
+        </main>
+      );
+    }
+    if (route === "active"){
+      return (
+        <main className="main">
+          <ul className="todo-list">{taskList.filter((task)=> !task.completed).map(
+            (item, index) => (
+              <TodoItem completed={item.completed} id={item.id} onToggleComplete={onToggleComplete} onDelete={onDelete} text={item.task}></TodoItem>
+            )
+          )}</ul>
+        </main>
+      );
+    }
   }
   
   function TodoItem({ text, id, onToggleComplete, onDelete, completed }) {
@@ -131,13 +163,13 @@ function App() {
         <span className="todo-count">{completedCount} items left</span>
         <ul className="filters">
           <li>
-            <a>all</a>
+            <a href="#/all">all</a>
           </li>
           <li>
-            <a>active</a>
+            <a href="#/active">active</a>
           </li>
           <li>
-            <a>completed 2</a>
+            <a href="#/completed">completed</a>
           </li>
         </ul>
         <button className="clear-completed" onClick={onClear}>
@@ -158,8 +190,7 @@ function App() {
   
   const app = <App></App>
   
-  
-  
   let container = document.body;
-  
+
   minireact.render(app, container);
+ 
