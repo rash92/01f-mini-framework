@@ -19,3 +19,7 @@ at the end, where in the middle you should have a function called App where you 
     minireact.useState
 
 but apart from that it has the same syntax as regular react useState.
+
+in your App function, create a routes object with keys as routes that would go at the end of the url after '#/', and functions to exectute on going to that route as values, then pass the routes object into minireact.handleRoutes
+
+add stuff about installing babel and webpack.
