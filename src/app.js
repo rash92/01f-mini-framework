@@ -32,18 +32,10 @@ function App() {
     );
   };
 
-  //function needs to be redone, this is not what other examples are actually doing.
+  //route all is default for if unknown route
   const toggleAllComplete = () => {
     setTasklist((taskList) =>
-      route === "all"
-        ? taskList.some((task) => !task.completed)
-          ? taskList.map((task) => {
-              return { ...task, completed: true };
-            })
-          : taskList.map((task) => {
-              return { ...task, completed: false };
-            })
-        : route === "active"
+      route === "active"
         ? taskList.map((task) => {
             return { ...task, completed: true };
           })
@@ -51,9 +43,13 @@ function App() {
         ? taskList.map((task) => {
             return { ...task, completed: false };
           })
-        : console.log(
-            "something went wrong, tried to select route in non existent route"
-          )
+        : taskList.some((task) => !task.completed)
+        ? taskList.map((task) => {
+            return { ...task, completed: true };
+          })
+        : taskList.map((task) => {
+            return { ...task, completed: false };
+          })
     );
   };
 
@@ -127,20 +123,8 @@ function ToggleAllContainer({ taskList, onToggleAll, route }) {
       : taskList;
 
   if (veiwedList.length === 0) {
-    console.log(
-      "detecting zero length list: ",
-      veiwedList,
-      "current route: ",
-      route
-    );
     return null;
   }
-  console.log(
-    "detected nonzero length list: ",
-    veiwedList,
-    "on route: ",
-    route
-  );
 
   return (
     <div className="toggle-all-container">
@@ -165,7 +149,6 @@ function ToDoList({
   route,
   onToggleAll,
 }) {
-  console.log("tasklist: ", taskList, "route: ", route);
   if (route === "completed") {
     return (
       <main className="main">
@@ -191,7 +174,7 @@ function ToDoList({
   }
   if (route === "active") {
     return (
-      <main>
+      <main className="main">
         <ToggleAllContainer
           taskList={taskList}
           onToggleAll={onToggleAll}
@@ -214,7 +197,7 @@ function ToDoList({
   }
   if (route === "all") {
     return (
-      <main>
+      <main className="main">
         <ToggleAllContainer
           taskList={taskList}
           onToggleAll={onToggleAll}

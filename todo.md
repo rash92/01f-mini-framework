@@ -15,8 +15,7 @@ To run after changes:
 TODO:
 
 main:
-
-- select all button showing up in weird places, correct place on completed but not all or active?!?!
+- clean up repeating sections of code e.g. in todolist component maybe?
 - separate out components into their own folder and import them into app.js
 - write readme
 - check actual spec (below) for anything else
