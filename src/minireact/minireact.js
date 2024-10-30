@@ -38,6 +38,9 @@ function createDom(fiber) {
       case "keydown":
         dom.onkeydown = callback;
         break;
+      case "blur":
+        dom.onblur = callback;
+        break;
       case "mouseover":
         dom.onmouseover = callback;
         break;
@@ -134,7 +137,6 @@ function commitRoot() {
 
 function commitDeletion(fiber, domParent) {
   //regular case where non functional component has a dom already
-  console.log("trying to delete fiber: ", fiber)
   if (fiber.dom) {
     domParent.removeChild(fiber.dom);
     //handle case with functional components, recursively look for children until find a fiber with a dom

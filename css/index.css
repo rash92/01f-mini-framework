@@ -142,9 +142,9 @@ body {
 	transform: rotate(90deg);
 }
 
-.toggle-all:checked + label:before {
+/* .toggle-all:checked + label:before {
 	color: #484848;
-}
+} */
 
 .todo-list {
 	margin: 0;

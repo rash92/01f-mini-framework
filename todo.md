@@ -16,7 +16,7 @@ TODO:
 
 main:
 
-- handle double click and esc when editing todo items
+- select all button showing up in weird places, correct place on completed but not all or active?!?!
 - hide main and footer when no todos available
 - hide 'clear completed' while none are completed
 - separate out components into their own folder and import them into app.js

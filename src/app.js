@@ -26,30 +26,41 @@ function App() {
     );
   };
 
+  const updateTask = (id, text) => {
+    setTasklist((taskList) =>
+      taskList.map((task) => (task.id === i ? { ...task, task: text } : task))
+    );
+  };
+
   //function needs to be redone, this is not what other examples are actually doing.
   const toggleAllComplete = () => {
-    setTasklist((taskList) =>
-      taskList.map((task) => {
-        return { ...task, completed: !task.completed };
-      })
+    setTasklist(
+      (taskList) =>
+        // route === "all"
+        taskList.some((task) => !task.completed)
+          ? taskList.map((task) => {
+              return { ...task, completed: true };
+            })
+          : taskList.map((task) => {
+              return { ...task, completed: false };
+            })
+      // : route === "active"
+      // ? taskList.map((task) => {
+      //     return { ...task, completed: true };
+      //   })
+      // : route === "completed"
+      // ? taskList.map((task) => {
+      //     return { ...task, completed: false };
+      //   })
+      // : console.log(
+      //     "something went wrong, tried to select route in non existent route"
+      //   )
     );
   };
 
   const clearCompleted = () => {
     const completedTasks = taskList.filter((task) => task.completed);
-    console.log(
-      "before full task list: ",
-      taskList,
-      "completed tasklist: ",
-      completedTasks
-    );
     setTasklist((taskList) => [...taskList.filter((task) => !task.completed)]);
-    console.log(
-      "after full task list: ",
-      taskList,
-      "completed tasklist: ",
-      completedTasks
-    );
   };
   const deleteTask = (id) => {
     setTasklist((taskList) => [...taskList.filter((task) => task.id !== id)]);
@@ -76,9 +87,11 @@ function App() {
         onDelete={deleteTask}
         onToggleComplete={toggleComplete}
         onToggleAll={toggleAllComplete}
+        updateTask={updateTask}
         route={route}
       ></ToDoList>
       <ToDoListFooter
+        taskList={taskList}
         onClear={clearCompleted}
         completedCount={completedCount}
       ></ToDoListFooter>
@@ -106,57 +119,61 @@ function InputHeader({ onEnter }) {
   );
 }
 
+function ToggleAllContainer({ taskList, onToggleAll, route }) {
+  const veiwedList =
+    route === "completed"
+      ? taskList.filter((task) => task.completed)
+      : route === "active"
+      ? taskList.filter((task) => !task.completed)
+      : taskList;
+
+  if (veiwedList.length === 0) {
+    console.log("detecting zero length list: ", veiwedList, "current route: ", route)
+    return null;
+  }
+  console.log("detected nonzero length list: ", veiwedList, "on route: ", route)
+  
+  return (
+    <div className="toggle-all-container">
+      <input className="toggle-all">toggle complete</input>
+      <label
+        className="toggle-all-label"
+        htmlfor="toggle-all"
+        onClick={onToggleAll}
+      >
+        Toggle All Input
+      </label>
+    </div>
+  );
+}
+
 //toggle all container stuff needs to be redone, also possibly better way than if statement with 3 returns?
 function ToDoList({
   taskList,
   onDelete,
   onToggleComplete,
-  onEsc,
+  updateTask,
   route,
   onToggleAll,
 }) {
-  if (route === "all") {
+  console.log("tasklist: ", taskList, "route: ", route);
+  if (route === "completed") {
     return (
       <main className="main">
-        <div className="toggle-all-container">
-          <input className="toggle-all">
-            toggle complete
-          </input>
-          <label className="toggle-all-label" htmlfor="toggle-all" onClick={onToggleAll}>Toggle All Input</label>
-        </div>
-        <ul className="todo-list">
-          {taskList.map((item, index) => (
-            <TodoItem
-              completed={item.completed}
-              id={item.id}
-              onToggleComplete={onToggleComplete}
-              onDelete={onDelete}
-              text={item.task}
-            ></TodoItem>
-          ))}
-        </ul>
-      </main>
-    );
-  }
-  if (route == "completed") {
-    return (
-      <main className="main">
-        <div className="toggle-all-container">
-          <input className="toggle-all">
-            toggle complete
-          </input>
-          <label className="toggle-all-label" htmlfor="toggle-all" onClick={onToggleAll}>Toggle All Input</label>
-        </div>
+        <ToggleAllContainer
+          taskList={taskList}
+          onToggleAll={onToggleAll}
+          route={route}
+        ></ToggleAllContainer>
         <ul className="todo-list">
           {taskList
             .filter((task) => task.completed)
-            .map((item, index) => (
+            .map((task, index) => (
               <TodoItem
-                completed={item.completed}
-                id={item.id}
+                task={task}
                 onToggleComplete={onToggleComplete}
                 onDelete={onDelete}
-                text={item.task}
+                updateTask={updateTask}
               ></TodoItem>
             ))}
         </ul>
@@ -165,45 +182,76 @@ function ToDoList({
   }
   if (route === "active") {
     return (
-      <main className="main">
-        <div className="toggle-all-container">
-          <input className="toggle-all">
-            toggle complete
-          </input>
-          <label className="toggle-all-label" htmlfor="toggle-all" onClick={onToggleAll}>Toggle All Input</label>
-        </div>
+      <main>
+        <ToggleAllContainer
+          taskList={taskList}
+          onToggleAll={onToggleAll}
+          route={route}
+        ></ToggleAllContainer>
         <ul className="todo-list">
           {taskList
             .filter((task) => !task.completed)
-            .map((item, index) => (
+            .map((task, index) => (
               <TodoItem
-                completed={item.completed}
-                id={item.id}
+                task={task}
                 onToggleComplete={onToggleComplete}
                 onDelete={onDelete}
-                text={item.task}
+                updateTask={updateTask}
               ></TodoItem>
             ))}
         </ul>
       </main>
     );
   }
+  if (route === "all") {
+    return (
+      <main>
+        <ToggleAllContainer
+          taskList={taskList}
+          onToggleAll={onToggleAll}
+          route={route}
+        ></ToggleAllContainer>
+        <ul className="todo-list">
+          {taskList.map((task, index) => (
+            <TodoItem
+              task={task}
+              onToggleComplete={onToggleComplete}
+              onDelete={onDelete}
+              updateTask={updateTask}
+            ></TodoItem>
+          ))}
+        </ul>
+      </main>
+    );
+  }
+
+  return (
+    <main className="main">
+      <div>unknown route</div>
+    </main>
+  );
 }
 
-function TodoItem({ text, id, onToggleComplete, onDelete, completed }) {
+function TodoItem({ task, onToggleComplete, onDelete, updateTask }) {
   const [editing, setEditing] = minireact.useState(false);
+  const todoText = task.task;
+  const id = task.id;
+  const completed = task.completed;
+
   const onDblclick = () => {
-    console.log("double click detected on item with id: ", id);
     setEditing((old) => true);
   };
   const onKeyDown = (e) => {
     if (e.key === "Enter") {
-      console.log("enter key detected in: ", id);
+      updateTask(id, e.target.value);
       setEditing((old) => false);
     }
     if (e.key === "Escape") {
-      console.log("esc key detected on item with id: ", id);
+      setEditing((old) => false);
     }
+  };
+  const onBlur = (e) => {
+    setEditing((old) => false);
   };
 
   const viewingItem = (
@@ -217,29 +265,45 @@ function TodoItem({ text, id, onToggleComplete, onDelete, completed }) {
         checked={completed}
       ></input>
       <label for="" onDblclick={onDblclick} onKeyDown={onKeyDown}>
-        To do item id: {id}: {text},{" "}
+        {todoText}
       </label>
       <button className="destroy" onClick={() => onDelete(id)}></button>
     </div>
   );
 
   const editingItem = (
-    <div className="view">
+    <div>
       <input
+        id="todo-edit"
+        className="edit"
         onKeyDown={onKeyDown}
         label="Edit Todo Input"
-        defaultValue={text}
+        defaultValue={todoText}
+        onBlur={onBlur}
       ></input>
     </div>
   );
 
-  return <li>{editing ? editingItem : viewingItem}</li>;
+  return (
+    <li
+      className={[editing ? "editing" : "", completed ? "completed" : ""].join(
+        " "
+      )}
+    >
+      {editing ? editingItem : viewingItem}
+    </li>
+  );
 }
 
-function ToDoListFooter({ onClear, completedCount }) {
+function ToDoListFooter({ onClear, completedCount, taskList }) {
+  if (taskList.length === 0) {
+    return null;
+  }
   return (
     <footer className="footer">
-      <span className="todo-count">{completedCount} items left</span>
+      <span className="todo-count">
+        {completedCount} item{taskList.length === 1 ? "" : "s"} left
+      </span>
       <ul className="filters">
         <li>
           <a href="#/all">all</a>
@@ -251,9 +315,11 @@ function ToDoListFooter({ onClear, completedCount }) {
           <a href="#/completed">completed</a>
         </li>
       </ul>
-      <button className="clear-completed" onClick={onClear}>
-        Clear Completed
-      </button>
+      {taskList.some((task) => task.completed) ? (
+        <button className="clear-completed" onClick={onClear}>
+          Clear Completed
+        </button>
+      ) : null}
     </footer>
   );
 }
