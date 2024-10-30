@@ -15,7 +15,7 @@ To run after changes:
 TODO:
 
 main:
-- select all button - works in the way i thought it should but turns out that's not what they want. Some selected -> all selected, all selected -> none selected is how it should be rather than just toggling each individual one. Also need to do it based on only tasks currently showing (i.e. behavious depends on if looking at all, active or completed) and need to hide button if no tasks listed.
+
 - handle double click and esc when editing todo items
 - hide main and footer when no todos available
 - hide 'clear completed' while none are completed
