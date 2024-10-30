@@ -34,27 +34,26 @@ function App() {
 
   //function needs to be redone, this is not what other examples are actually doing.
   const toggleAllComplete = () => {
-    setTasklist(
-      (taskList) =>
-        // route === "all"
-        taskList.some((task) => !task.completed)
+    setTasklist((taskList) =>
+      route === "all"
+        ? taskList.some((task) => !task.completed)
           ? taskList.map((task) => {
               return { ...task, completed: true };
             })
           : taskList.map((task) => {
               return { ...task, completed: false };
             })
-      // : route === "active"
-      // ? taskList.map((task) => {
-      //     return { ...task, completed: true };
-      //   })
-      // : route === "completed"
-      // ? taskList.map((task) => {
-      //     return { ...task, completed: false };
-      //   })
-      // : console.log(
-      //     "something went wrong, tried to select route in non existent route"
-      //   )
+        : route === "active"
+        ? taskList.map((task) => {
+            return { ...task, completed: true };
+          })
+        : route === "completed"
+        ? taskList.map((task) => {
+            return { ...task, completed: false };
+          })
+        : console.log(
+            "something went wrong, tried to select route in non existent route"
+          )
     );
   };
 
@@ -128,11 +127,21 @@ function ToggleAllContainer({ taskList, onToggleAll, route }) {
       : taskList;
 
   if (veiwedList.length === 0) {
-    console.log("detecting zero length list: ", veiwedList, "current route: ", route)
+    console.log(
+      "detecting zero length list: ",
+      veiwedList,
+      "current route: ",
+      route
+    );
     return null;
   }
-  console.log("detected nonzero length list: ", veiwedList, "on route: ", route)
-  
+  console.log(
+    "detected nonzero length list: ",
+    veiwedList,
+    "on route: ",
+    route
+  );
+
   return (
     <div className="toggle-all-container">
       <input className="toggle-all">toggle complete</input>
