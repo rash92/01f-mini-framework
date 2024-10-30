@@ -28,7 +28,7 @@ function App() {
 
   const updateTask = (id, text) => {
     setTasklist((taskList) =>
-      taskList.map((task) => (task.id === i ? { ...task, task: text } : task))
+      taskList.map((task) => (task.id === id ? { ...task, task: text } : task))
     );
   };
 
