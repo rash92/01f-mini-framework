@@ -8,6 +8,8 @@
 - [Quickstart](#quickstart)
 - [Prerequisites](#prerequisites)
 - [Making other apps](#making-other-apps)
+    - [Virtual Dom elements](#virtual-dom-elements)
+    - [Components](#components)
     - [State management](#state-management)
     - [Routing](#routing)
     - [Event management](#event-management)
@@ -29,14 +31,19 @@
 This was my version of the [mini framework](https://learn.01founders.co/git/root/public/src/branch/master/subjects/mini-framework) project while studying at [01Founders](https://01founders.co/). The idea was to create a framework and then use it to create a [TodoMVC](https://todomvc.com/), with a future project using the same framework to make a multiplayer browser game. I chose to reimplement the main basic features of react, hence 'minireact'.
 
 # Features:
- - virtual dom
+Overview of the features included in the framework which were used, see [How it works](#how-it-works) for more detailed explanations.
 
- - state management
+## Virtual dom
+The virtual dom allows you to only rerender components that have actually changed, while keeping other elements the same. This is done by keeping track of changes made to state within a component, as well as props passed into a component by the parent component. Any changes to a parent causes children to be rerendered, but a child component may change without requiring sibling or cousin components to be rerendered.
 
- - basic event handling
+## State management
+Implemented the equivalent of reacts useState, which is state that a component has access to and a change in that state will cause it to rerender. Changes to state are done using a callback function that replaces what is stored in the state rather than mutating it, so as to make it noticeable when there has been a change and trigger a rerender.
 
- - basic routing
+## Event handling
+Basic version of the built in addEventListener has been implemented as the built in method was not allowed to be used, which currently only has the events required for the todoMVC working, and only allows one event per type per dom element. In practice it is better to use the built in addEventListener.
 
+## Routing
+Routing for routes of the form `#/foo` for a given `foo` are implemented, where you can have links that change the hash route by adding `href=#/foo` and functions that detect that change and do something based on it. 
 
 # Usage:
 
@@ -81,6 +88,96 @@ At the end of the app.js file, you need to have:
 The app itself should be a function called App that returns jsx. 
 
 You can have other components defined in the app function that are used in the return statement, or put them in the components folder and import them to be used in App.
+
+### Virtual Dom elements
+You can make virtual dom elements with the same syntax as regular html, and these can be saved as variables to be passed around. These will be converted by the babel transpiler into objects using the `minireact.createElement` function to be eventually rendered as html by the browser. E.g.
+
+    const exampleDiv = <div>here is my example</div>
+
+and this can then be used in future elements by wrapping in curly brackets `{}` if you want them to be interpreted as a variable
+    const exampleChild1 = <li>item 1</li>
+    const exampleChild2 = <li>item 2</li>
+    const exampleParent = <ul>{exampleChild1}{exampleChild2}</ul>
+
+which would be the equivalent of:
+
+    <ul>
+        <li>item 1</li>
+        <li>item 2</li>
+    </ul>
+
+You can have html attr which are equivalent to props in the virtual dom, except for classes which need to be called className and will then be converted to class in the html due to a name conflict in javascript. You can use variables or other javascript code to be evaluated by enclosing it in `{}` e.g.
+
+    const exampleDiv = <div className="test" id="2">I am a div with a class and an id</div>
+
+and 
+
+    const exampleClass = "test"
+    const exampleId = "2"
+    const exampleDiv = <div className={exampleClass} id={exampleId}>I am a div with a class and an id</div>
+
+would both be equivalent to the html
+
+    <div class="test id="2">I am a div with a class and an id</div>
+
+under the hood these are just objects with a type, props (attributes) and children as fields:
+
+
+### Components
+Components allow you to create custom elements which can be made up of a lot of basic html elements, as well as doing calculations relevant to the component and keeping track of state to allow certain related blocks to rerender when necessary without having to rerender the whole page. components take in props and children which can be accessed from the inside. While the are class components that work, the inteded usage is with functional components, in which case you can think of props and children as just arguments for the function that may be used in the return statement, which may involve other components but which will ultimately be regular html.
+
+For example, you could create a custom list component that takes in as a prop an array of children to be inserted into the list, where you can do some transformations on the items if you want, including making subcomponents out of them. E.g this defines a function that takes an array of numbers, squares them, puts them in a `<li>` element, and then inserts them into a list. 
+
+    function SquareList({intArray}){
+
+        let listItemComponents = intArray.map((item) => <li>{item * item}</li>)
+
+        return (
+            <ul>listItemComponents<ul>
+        )
+    }
+
+and to use it:
+
+    let listItems = [1,2,3,4,5]
+    const squareListInstance = <SquareList intArray={listItems}></SquareList>
+
+as you can see, once you've defined your component, it can be used with the same syntax as built in html elements! it's basically creating custom html elements.
+
+You can also pass in children to these and access them within instead of passing in as props. The children are treated as just an extra prop, but are put between the tags instead of within the first tag with a named prop. This is equivalent to the above:
+
+    function SquareList({children}){
+
+        let listItemComponents = children.map((item) => <li>{item * item}</li>)
+
+        return (
+            <ul>listItemComponents<ul>
+        )
+    }
+
+    let listItems = [1,2,3,4,5]
+    const squareListInstance = <SquareList>{listItems}</SquareList>
+
+you can also access the props within the definition by calling the props object, these are equivalent to the above two respectively:
+    function SquareList(props){
+        const intArray = props.intArray
+        let listItemComponents = intArray.map((item) => <li>{item * item}</li>)
+
+        return (
+            <ul>listItemComponents<ul>
+        )
+    }
+
+and 
+
+    function SquareList(props){
+        const children = props.children
+        let listItemComponents = children.map((item) => <li>{item * item}</li>)
+
+        return (
+            <ul>listItemComponents<ul>
+        )
+    }
 
 
 ### State management
@@ -219,14 +316,14 @@ The exact file structure isn't that important but changing it may require changi
 
 
 # How it works:
-    - create element and create text element
-    - create dom and update dom
-    - commit root, commit work and commit deletion
-    - update function component and update host component
-    - reconcile children
-    - workloop and perform unit of work
-    - use state 
-    - routehandler
+## create element and create text element
+## create dom and update dom
+## commit root, commit work and commit deletion
+## update function component and update host component
+## reconcile children
+## workloop and perform unit of work
+## use state 
+## routehandler
 
 # Limitations:
     can't handle all events, and can only have one event type per DOM element, this is due to needing to create a custom event handler for the project without use of addEventListener, in practice can just use that.
