@@ -7,13 +7,13 @@
 [3. Usage](#usage)
 - [Quickstart](#quickstart)
 - [Prerequisites](#prerequisites)
-- [Making other apps][#making-other-apps]
+- [Making other apps](#making-other-apps)
 - [File structure](#file-structure)
-- [Manual Configuration](#manual-configuration)
-    [file structure](#file-structure)
-    [package.json](#package.json)
-    [webpack.config.cjs](#webpack.config.cjs)
-    [babel.config.json](#babel.config.json)
+- [Manual configuration](#manual-configuration)
+    - [file structure](#file-structure)
+    - [package.json](#package.json)
+    - [webpack.config.cjs](#webpack.config.cjs)
+    - [babel.config.json](#babel.config.json)
 
 [4. How it works](#how-it-works)
 
