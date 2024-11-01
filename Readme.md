@@ -5,14 +5,20 @@ background and purpose:
     - part of the 01founders course with project [project link] that has certain requirements to build a mini framework to reimplement features of others, and then use that framework to make a basic todo app. A future project will use the framework to create a multiplayer bomberman game. 
 
 acknowledgements:
-    - thanks to rodrigo pombo for his excellent tutorial on the basics of reimplementing react, as well as peter, rupert, bilal and daisy for their help in finding and fixing bugs and deepening my understanding.
+
+thanks to rodrigo pombo for his excellent tutorial:
+
+    https://pomb.us/build-your-own-react/
+
+on the basics of reimplementing react, as well as peter, rupert, bilal and daisy for their help in finding and fixing bugs and deepening my understanding.
 
 Usage:
 
 prerequisite installs: babel (babel cli, babel core, babel preset-env, babel preset-react), webpack (webpack, webpack-cli, babel-loader), liveserver extension
 
 config:
-    package.json: 
+package.json:
+
         {
         "type": "module",
         "name": "mini-framework",
@@ -32,7 +38,8 @@ config:
         }
         }
 
-    webpack.config.cjs:
+webpack.config.cjs:
+
         const path = require("path");
 
         module.exports = {
@@ -58,7 +65,8 @@ config:
         },
         };
 
-    babel.config.json:
+babel.config.json:
+
         {
          "presets": [ "@babel/preset-react"]
         }
