@@ -8,6 +8,9 @@
 - [Quickstart](#quickstart)
 - [Prerequisites](#prerequisites)
 - [Making other apps](#making-other-apps)
+    - [State management](#state-management)
+    - [Routing](#routing)
+    - [Event management](#event-management)
 - [File structure](#file-structure)
 - [Manual configuration](#manual-configuration)
     - [file structure](#file-structure)
@@ -26,10 +29,13 @@
 This was my version of the [mini framework](https://learn.01founders.co/git/root/public/src/branch/master/subjects/mini-framework) project while studying at [01Founders](https://01founders.co/). The idea was to create a framework and then use it to create a [TodoMVC](https://todomvc.com/), with a future project using the same framework to make a multiplayer browser game. I chose to reimplement the main basic features of react, hence 'minireact'.
 
 # Features:
- virtual dom
- state management
- basic event handling
- basic routing
+ - virtual dom
+
+ - state management
+
+ - basic event handling
+
+ - basic routing
 
 
 # Usage:
@@ -49,9 +55,10 @@ If there are issues getting this to work, look at the prerequisites section and 
 The idea of the framework is that it should feel like using react, as such the intended way to use it is with jsx syntax and primarily functional components. Babel and webpack are required to be installed to transpile the jsx into javascript to run in the browser. While it is possible to use a custom server, for the purposes of this project I just used the live-server extension for VSCode.
 
 If you clone this repository, the package json already has what is required so `npm install` or `npm run build` should get everything needed, but if there are any issues or if you want to use the framework by itself and set things up manually then install babel, webpack and babel loader using:
+
     npm install --save-dev babel-loader @babel-core @babel-cli @babel-preset-env @babel/preset-react webpack webpack-cli
 
-Install the [live server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) VSCode extension, and then click on the icon on the bottom left while in the root folder.
+Install the [live server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) VSCode extension, and then click on the icon on the bottom left while in the root folder. And look at [Manual configuration](#manual-configuration) for how to set up the config files.
 
 ## Making other apps
 
@@ -76,7 +83,7 @@ The app itself should be a function called App that returns jsx.
 You can have other components defined in the app function that are used in the return statement, or put them in the components folder and import them to be used in App.
 
 
-### state management
+### State management
 If you want to use state management, call `minireact.useState` the same way you would use `useState` from regular react. This means creating a state variable and a state updating function, using `minireact.useState`, where what is passed in is the initialised state given. It is of the form
 
     [foo, setFoo] = minireact.useState(0)
@@ -98,7 +105,7 @@ to add 5 to the old state, or
 
 for an example where there are more than one line in the callback function and you want to do things besides return the new value.
 
-### Routes
+### Routing
 
 If you want to have behaviour based routes in the url, currently only routes of the form `#/foo` are implemented, to use this put
 
@@ -119,11 +126,36 @@ which changes the `route` state managed by `useState` and this is used for all l
 As I was not allowed to use the built in `addEventListener` I made my own custom event listener that currently only has a few basic events implemented, however you are free to use the build in addEventLister instead, to do so in `minireact.js` in the `updateDom` function replace `dom.customAddEventListener` with `dom.addEventListener`. As is, the only events that work are `keydown`, `click`, `dblclick`, `blur`, `input` and `mouseover`. To use these in your app, you can just add `onClick` etc. into a html element in your class, and then add a callback function for it to use. Currently only one event per type per dom element is possible, and new ones will overwrite old ones.
 
 
-## manual configuration:
-If you have cloned the repository these should already exist in their respective files but if you want to add them manually these are the configs that worked.
+## Manual configuration:
+If you have cloned the repository these should already exist in their respective files and this section can be skipped but if you want to add them manually this is the file structure and configuration that should get things working.
 
 
-### file structure
+### File structure
+The exact file structure isn't that important but changing it may require changing import paths, the src path in index.html and the webpack config file below. the src folder and css folder contains everything you should be editing yourself, and the dist folder contains the result of webpack transpiling and minifying what is in the src folder to be run by the browser. As is the expected file structure is:
+
+    root
+    |--css
+    |   |--index.css
+    |
+    |--dist
+    |   |--app.js
+    |
+    |--node_modules
+    |
+    |--src
+    |   |--components
+    |   |--minireact
+    |   |   |--minireact.js
+    |   |
+    |   |--app.js
+    |
+    |--.gitignore
+    |--babel.config.json
+    |--index.html
+    |--package-lock.json
+    |--package.json
+    |--Readme.md
+    |--webpack.config.cjs
 
 
 ### package.json:
@@ -202,6 +234,6 @@ If you have cloned the repository these should already exist in their respective
     doesn't have all of the react hooks, only useState.
 
 
-# acknowledgements:
+# Acknowledgements:
 
-Thanks to rodrigo pombo for his excellent [tutorial](https://pomb.us/build-your-own-react/) on the basics of reimplementing react, as well as peter, rupert, bilal and daisy for their help in finding and fixing bugs and deepening my understanding.
+Thanks to rodrigo pombo for his excellent [tutorial](https://pomb.us/build-your-own-react/) on the basics of reimplementing react, as well as Peter, Rupert, Bilal and Daisy for their help in finding and fixing bugs getting my head around everything.
