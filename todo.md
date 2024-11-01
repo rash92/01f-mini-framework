@@ -17,4 +17,4 @@ TODO:
 main:
 
 - finish readme
-    -features, how it works and limitations are main things left
+    -how to make other apps section, especially components, how it works and limitations are main things left
