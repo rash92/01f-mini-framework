@@ -18,11 +18,10 @@ function App() {
 
   window.onhashchange = () => minireact.routeHandler(routes);
 
-  const toggleComplete = (id) => {
+  const toggleComplete = (id, event) => {
+    event.preventDefault()
     setTasklist((taskList) =>
-      taskList.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
+      taskList.map((task) => (task.id === id ? { ...task, completed: !task.completed } : task))
     );
   };
 
@@ -54,14 +53,12 @@ function App() {
   };
 
   const clearCompleted = () => {
-    const completedTasks = taskList.filter((task) => task.completed);
     setTasklist((taskList) => [...taskList.filter((task) => !task.completed)]);
   };
   const deleteTask = (id) => {
     setTasklist((taskList) => [...taskList.filter((task) => task.id !== id)]);
   };
 
-  //redo to handle counting total completed with callback function passed in?
   const handleEnter = (e) => {
     if (e.key === "Enter") {
       const newTask = {
@@ -160,7 +157,7 @@ function ToDoList({
         <ul className="todo-list">
           {taskList
             .filter((task) => task.completed)
-            .map((task, index) => (
+            .map((task) => (
               <TodoItem
                 task={task}
                 onToggleComplete={onToggleComplete}
@@ -183,7 +180,7 @@ function ToDoList({
         <ul className="todo-list">
           {taskList
             .filter((task) => !task.completed)
-            .map((task, index) => (
+            .map((task) => (
               <TodoItem
                 task={task}
                 onToggleComplete={onToggleComplete}
@@ -204,7 +201,7 @@ function ToDoList({
           route={route}
         ></ToggleAllContainer>
         <ul className="todo-list">
-          {taskList.map((task, index) => (
+          {taskList.map((task) => (
             <TodoItem
               task={task}
               onToggleComplete={onToggleComplete}
@@ -226,16 +223,15 @@ function ToDoList({
 
 function TodoItem({ task, onToggleComplete, onDelete, updateTask }) {
   const [editing, setEditing] = minireact.useState(false);
-  const todoText = task.task;
-  const id = task.id;
-  const completed = task.completed;
 
+
+  console.log("todo item: ", task)
   const onDblclick = () => {
     setEditing((old) => true);
   };
   const onKeyDown = (e) => {
     if (e.key === "Enter") {
-      updateTask(id, e.target.value);
+      updateTask(task.id, e.target.value);
       setEditing((old) => false);
     }
     if (e.key === "Escape") {
@@ -251,17 +247,19 @@ function TodoItem({ task, onToggleComplete, onDelete, updateTask }) {
       <input
         className="toggle"
         type="checkbox"
-        onClick={() => {
-          onToggleComplete(id);
+        checked={task.completed}
+        onClick={(event) => {
+          onToggleComplete(task.id, event);
         }}
-        checked={completed}
       ></input>
       <label for="" onDblclick={onDblclick} onKeyDown={onKeyDown}>
-        {todoText}
+        {task.task}
       </label>
-      <button className="destroy" onClick={() => onDelete(id)}></button>
+      <button className="destroy" onClick={() => onDelete(task.id)}></button>
     </div>
   );
+
+  console.log("viewing item is: ", viewingItem, "with :")
 
   const editingItem = (
     <div>
@@ -270,7 +268,7 @@ function TodoItem({ task, onToggleComplete, onDelete, updateTask }) {
         className="edit"
         onKeyDown={onKeyDown}
         label="Edit Todo Input"
-        defaultValue={todoText}
+        defaultValue={task.task}
         onBlur={onBlur}
       ></input>
     </div>
@@ -278,7 +276,7 @@ function TodoItem({ task, onToggleComplete, onDelete, updateTask }) {
 
   return (
     <li
-      className={[editing ? "editing" : "", completed ? "completed" : ""].join(
+      className={[editing ? "editing" : "", task.completed ? "completed" : ""].join(
         " "
       )}
     >

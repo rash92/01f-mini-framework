@@ -1,3 +1,18 @@
+
+let wipFiber = null;
+let hookIndex = null;
+let nextUnitOfWork = null;
+let wipRoot = null;
+let currentRoot = null;
+let deletions = null;
+
+const isEvent = (key) => key.startsWith("on");
+const isProp = (key) => key !== "children" && !isEvent(key);
+const isNew = (prev, next) => (key) => prev[key] !== next[key];
+const isGone = (prev, next) => (key) => !(key in next);
+const getEventType = (name) => name.toLowerCase().substring(2);
+
+
 function createElement(type, props, ...children) {
   return {
     type: type,
@@ -84,12 +99,6 @@ function createDom(fiber) {
 
   return dom;
 }
-
-const isEvent = (key) => key.startsWith("on");
-const isProp = (key) => key !== "children" && !isEvent(key);
-const isNew = (prev, next) => (key) => prev[key] !== next[key];
-const isGone = (prev, next) => (key) => !(key in next);
-const getEventType = (name) => name.toLowerCase().substring(2);
 
 //rewrite?
 function updateDom(dom, prevProps, nextProps) {
@@ -186,11 +195,6 @@ function render(element, container) {
   nextUnitOfWork = wipRoot;
 }
 
-let nextUnitOfWork = null;
-let wipRoot = null;
-let currentRoot = null;
-let deletions = null;
-
 function workLoop(deadline) {
   let done = false;
   while (nextUnitOfWork && !done) {
@@ -205,9 +209,6 @@ function workLoop(deadline) {
 }
 
 requestIdleCallback(workLoop);
-
-let wipFiber = null;
-let hookIndex = null;
 
 function updateFunctionComponent(fiber) {
   wipFiber = fiber;
@@ -232,7 +233,8 @@ function updateHostComponent(fiber) {
 //order is child, if no children sibling, if no siblings 'uncle'.
 function performUnitOfWork(fiber) {
   if (!fiber || !fiber.type) {
-    console.log("issue performing unit of work for fiber: ", fiber);
+    console.log("issue performing unit of work for fiber: ", fiber, "type: ", fiber.type);
+    
   }
 
   if (fiber.type instanceof Function) {
