@@ -60,10 +60,14 @@ webpack.config.cjs:
                     presets: [["@babel/preset-env"]],
                 },
                 },
+                resolve: {
+                fullySpecified: false
+                }
             },
             ],
         },
         };
+
 
 babel.config.json:
 
@@ -75,13 +79,13 @@ babel.config.json:
 to edit, make changes to app.js and add components to the components folder
 To update site after making changes, do 'npm run build' then run the live server.
 
-in app.js, need to have:
+in app.js, and any component files, need to have:
 
     import { minireact } from "./minireact/minireact.js";
 
         /** @jsx minireact.createElement */
 
-at the beginning, and then:
+at the beginning for babel to use minireacts createElement function rather than attempting and failing to use reacts (as react should not be installed), and then:
 
     let container = document.body;
     const app = <App></App>

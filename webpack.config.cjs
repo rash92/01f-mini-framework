@@ -18,6 +18,9 @@ module.exports = {
             presets: [["@babel/preset-env"]],
           },
         },
+        resolve: {
+          fullySpecified: false
+        }
       },
     ],
   },
