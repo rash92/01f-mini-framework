@@ -1,4 +1,3 @@
-
 let wipFiber = null;
 let hookIndex = null;
 let nextUnitOfWork = null;
@@ -44,7 +43,6 @@ function createDom(fiber) {
   dom.customAddEventListener = (type, callback) => {
     switch (type) {
       case "click":
-        // dom.addEventListener("click", callback)
         dom.onclick = callback;
         break;
       case "dblclick":
@@ -100,11 +98,8 @@ function createDom(fiber) {
   return dom;
 }
 
-//rewrite?
 function updateDom(dom, prevProps, nextProps) {
-  //unsure if order of these matters? doing same order as guide
   //remove old or changed event listeners
-  // console.log("attempting to update dom: ", dom, "with prevProps: ", prevProps, "and nextProps: ", nextProps)
   if (!nextProps) {
     console.log("unable to update dom, nextProps passed in is: ", nextProps);
     return;
@@ -175,7 +170,7 @@ function commitWork(fiber) {
     updateDom(fiber.dom, fiber.alternate.props, fiber.props);
   } else if (fiber.effectTag === "DELETE") {
     commitDeletion(fiber, domParent);
-    //this return bit is not in original tutorial but suggested something like this in one of the pull requests and seems to fix weird deleting issues?
+    //this return bit is not in tutorial but suggested something like this in one of the pull requests and seems to fix weird deleting issues?
     return;
   }
 
@@ -232,10 +227,6 @@ function updateHostComponent(fiber) {
 //takes in a fiber to perform tasks on, then returns next fiber to work on next.
 //order is child, if no children sibling, if no siblings 'uncle'.
 function performUnitOfWork(fiber) {
-  if (!fiber || !fiber.type) {
-    console.log("issue performing unit of work for fiber: ", fiber, "type: ", fiber.type);
-    
-  }
 
   if (fiber.type instanceof Function) {
     updateFunctionComponent(fiber);
@@ -262,7 +253,7 @@ function performUnitOfWork(fiber) {
 function reconcileChildren(wipFiber, children) {
   let prevSibling = null;
   let index = 0;
-  //javascript && weirdness, will return first part if it's falsy, or will return value of second part
+  //will return first part if it's falsy, or will return value of second part
   //i.e. will be null if either are null, otherwise second value
   let oldFiber = wipFiber.alternate && wipFiber.alternate.firstChild;
   while (index < children.length || oldFiber != null) {

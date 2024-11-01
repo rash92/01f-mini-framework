@@ -224,8 +224,6 @@ function ToDoList({
 function TodoItem({ task, onToggleComplete, onDelete, updateTask }) {
   const [editing, setEditing] = minireact.useState(false);
 
-
-  console.log("todo item: ", task)
   const onDblclick = () => {
     setEditing((old) => true);
   };
@@ -258,8 +256,6 @@ function TodoItem({ task, onToggleComplete, onDelete, updateTask }) {
       <button className="destroy" onClick={() => onDelete(task.id)}></button>
     </div>
   );
-
-  console.log("viewing item is: ", viewingItem, "with :")
 
   const editingItem = (
     <div>
