@@ -63,6 +63,9 @@ function createDom(fiber) {
       case "keydown":
         dom.onkeydown = null;
         break;
+      case "blur":
+        dom.onblur = null;
+        break;
       case "mouseover":
         dom.onmouseover = null;
         break;
@@ -164,7 +167,7 @@ function commitWork(fiber) {
   } else if (fiber.effectTag === "DELETE") {
     commitDeletion(fiber, domParent);
     //this return bit is not in original tutorial but suggested something like this in one of the pull requests and seems to fix weird deleting issues?
-    return
+    return;
   }
 
   commitWork(fiber.firstChild);
@@ -343,17 +346,17 @@ function useState(initial) {
   return [hook.state, setState];
 }
 
-function routeHandler(routes){
-  let path = window.location.hash.slice(2)
-  let pathFound = false
-  for (let route in routes){
-    if (path === route){
-      routes[route]()
-      pathFound = true
+function routeHandler(routes) {
+  let path = window.location.hash.slice(2);
+  let pathFound = false;
+  for (let route in routes) {
+    if (path === route) {
+      routes[route]();
+      pathFound = true;
     }
   }
-  if (!pathFound){
-    console.log("route not found")
+  if (!pathFound) {
+    console.log("route not found");
   }
 }
 
@@ -362,4 +365,4 @@ export const minireact = {
   render,
   useState,
   routeHandler,
-}
+};
