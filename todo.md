@@ -16,5 +16,5 @@ TODO:
 
 main:
 
-- finish readme
-    -how to make other apps section, especially components, how it works and limitations are main things left
+- proofread readme
+- maybe reorganize functions to make more sense in minireact?
