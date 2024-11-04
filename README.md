@@ -28,8 +28,10 @@
     - [Fibers](#fibers)
     - [createDom](#createdom)
     - [updateDom](#updatedom)
-- [useState](#usestate)
-- [routeHandler](#routehandler)
+- [Hooks](#hooks)
+    - [useState](#usestate)
+- [Routes](#routes)
+    - [routeHandler](#routehandler)
 - [Committing changes](#committing-changes)
     - [commitDeletion](#commitdeletion)
     - [commitWork](#commitwork)
@@ -245,7 +247,6 @@ which changes the `route` state managed by `useState` and this is used for all l
 ### Event management
 As I was not allowed to use the built in `addEventListener` I made my own custom event listener that currently only has a few basic events implemented, however you are free to use the build in addEventLister instead, to do so in `minireact.js` in the `updateDom` function replace `dom.customAddEventListener` with `dom.addEventListener`. As is, the only events that work are `keydown`, `click`, `dblclick`, `blur`, `input` and `mouseover`. To use these in your app, you can just add `onClick` etc. into a html element in your class, and then add a callback function for it to use. Currently only one event per type per dom element is possible, and new ones will overwrite old ones.
 
-
 ## Manual configuration:
 If you have cloned the repository these should already exist in their respective files and this section can be skipped but if you want to add them manually this is the file structure and configuration that should get things working.
 
@@ -363,17 +364,19 @@ This function takes the fiber and checks whether it's a text element or not. If 
 ### updateDom
 This function takes a virtual dom element, the current props it has and what it should be updated to, and does a deep comparison to see which specific props (including child elements) need to be updated. Any that are unchanged are left alone.
 
-
-## useState
+## Hooks
+Currently only the useState hook has been implemented, in future may want to implement e.g. useRef, useMemo, useContext etc. 
+### useState
 Handles the useState hook. Takes in an initialization value and returns a state variable ('hook.state') and an updating function. Checks if the hook already exists and should be updated, if not creates a new one. The hook has a queue of actions to be taken, which are used to update state. This is the callback function passed into the setState function returned. 
 
 The setState function updates the wipRoot so the workloop stars a new render. 
 
 It adds the hook to the list of hooks in the wipFiber and increments the hookIndex, before returning the state hook and the setState function.
 
-## routeHandler
+## Routes
+Currently only hash routes of a particular form are implemented, in future may want to implement more general routes of different forms and deal with 404 errors.
+### routeHandler
 The route handler takes an object with 'hash routes' as keys and callback functions as values. a 'hash route' is a suffix to a url of the form `#/foo` for a given foo. These types of routes are the only ones currently implemented. The function cuts off the '#/' at the start, then checks the current path in the window against the keys in the routes object passed into it. If found, it executes the callback function associated with it, otherwise it logs an error and does nothing. May want to have other default behaviour for nonexistent routes such as a 404 page but not currently implemented.
-
 
 ## Committing changes
 Any changes are saved to wipRoot (work in progress root) which is to replace the current root in one step after all relevant calculations have been made. Elements that are slated for deletion are saved in a global array that will go through and delete them one at a time. There are functional components and basic components that have a virtual dom node, where functional components bottom out to basic components as return values. 
