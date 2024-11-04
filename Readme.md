@@ -111,6 +111,7 @@ You can make virtual dom elements with the same syntax as regular html, and thes
     const exampleDiv = <div>here is my example</div>
 
 and this can then be used in future elements by wrapping in curly brackets `{}` if you want them to be interpreted as a variable
+    
     const exampleChild1 = <li>item 1</li>
     const exampleChild2 = <li>item 2</li>
     const exampleParent = <ul>{exampleChild1}{exampleChild2}</ul>
