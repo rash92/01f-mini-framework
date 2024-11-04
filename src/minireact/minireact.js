@@ -5,12 +5,12 @@ let wipRoot = null;
 let currentRoot = null;
 let deletions = null;
 
+// callback functions for use in e.g. .filter
 const isEvent = (key) => key.startsWith("on");
 const isProp = (key) => key !== "children" && !isEvent(key);
 const isNew = (prev, next) => (key) => prev[key] !== next[key];
-const isGone = (prev, next) => (key) => !(key in next);
+const isGone = (next) => (key) => !(key in next);
 const getEventType = (name) => name.toLowerCase().substring(2);
-
 
 function createElement(type, props, ...children) {
   return {
@@ -114,7 +114,7 @@ function updateDom(dom, prevProps, nextProps) {
   //remove old props
   Object.keys(prevProps)
     .filter(isProp)
-    .filter(isGone(prevProps, nextProps))
+    .filter(isGone(nextProps))
     .forEach((name) => {
       dom[name] = "";
     });
