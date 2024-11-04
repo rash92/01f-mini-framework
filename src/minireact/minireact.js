@@ -163,7 +163,6 @@ function commitWork(fiber) {
   }
 
   const domParent = domParentFiber.dom;
-
   if (fiber.effectTag === "APPEND" && fiber.dom != null) {
     domParent.appendChild(fiber.dom);
   } else if (fiber.effectTag === "UPDATE" && fiber.dom != null) {
@@ -190,20 +189,7 @@ function render(element, container) {
   nextUnitOfWork = wipRoot;
 }
 
-function workLoop(deadline) {
-  let done = false;
-  while (nextUnitOfWork && !done) {
-    nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
-    done = deadline.timeRemaining() < 1;
-  }
-  //commit when task queue is empty
-  if (!nextUnitOfWork && wipRoot) {
-    commitRoot();
-  }
-  requestIdleCallback(workLoop);
-}
 
-requestIdleCallback(workLoop);
 
 function updateFunctionComponent(fiber) {
   wipFiber = fiber;
@@ -224,31 +210,7 @@ function updateHostComponent(fiber) {
   reconcileChildren(fiber, children.flat());
 }
 
-//takes in a fiber to perform tasks on, then returns next fiber to work on next.
-//order is child, if no children sibling, if no siblings 'uncle'.
-function performUnitOfWork(fiber) {
 
-  if (fiber.type instanceof Function) {
-    updateFunctionComponent(fiber);
-  } else {
-    updateHostComponent(fiber);
-  }
-
-  //go through children to assign as first child vs sibling of previous child
-
-  //return next in line for tasks, child exist is easy case.
-  //If not look for siblings, uncles, great uncles etc.
-  if (fiber.firstChild) {
-    return fiber.firstChild;
-  }
-  let nextFiber = fiber;
-  while (nextFiber) {
-    if (nextFiber.sibling) {
-      return nextFiber.sibling;
-    }
-    nextFiber = nextFiber.parent;
-  }
-}
 
 function reconcileChildren(wipFiber, children) {
   let prevSibling = null;
@@ -352,6 +314,47 @@ function routeHandler(routes) {
     console.log("route not found");
   }
 }
+
+//takes in a fiber to perform tasks on, then returns next fiber to work on next.
+//order is child, if no children sibling, if no siblings 'uncle'.
+function performUnitOfWork(fiber) {
+
+  if (fiber.type instanceof Function) {
+    updateFunctionComponent(fiber);
+  } else {
+    updateHostComponent(fiber);
+  }
+
+  //go through children to assign as first child vs sibling of previous child
+
+  //return next in line for tasks, child exist is easy case.
+  //If not look for siblings, uncles, great uncles etc.
+  if (fiber.firstChild) {
+    return fiber.firstChild;
+  }
+  let nextFiber = fiber;
+  while (nextFiber) {
+    if (nextFiber.sibling) {
+      return nextFiber.sibling;
+    }
+    nextFiber = nextFiber.parent;
+  }
+}
+
+function workLoop(deadline) {
+  let done = false;
+  while (nextUnitOfWork && !done) {
+    nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
+    done = deadline.timeRemaining() < 1;
+  }
+  //commit when task queue is empty
+  if (!nextUnitOfWork && wipRoot) {
+    commitRoot();
+  }
+  requestIdleCallback(workLoop);
+}
+
+requestIdleCallback(workLoop);
 
 export const minireact = {
   createElement,

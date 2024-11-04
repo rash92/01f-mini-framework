@@ -5,7 +5,7 @@
 [2. Features](#features)
 
 [3. Usage](#usage)
-- [Quickstart](#quickstart)
+- [Quickstart](#quick-start)
 - [Prerequisites](#prerequisites)
 - [Making other apps](#making-other-apps)
     - [Virtual Dom elements](#virtual-dom-elements)
@@ -13,40 +13,58 @@
     - [State management](#state-management)
     - [Routing](#routing)
     - [Event management](#event-management)
-- [File structure](#file-structure)
 - [Manual configuration](#manual-configuration)
-    - [file structure](#file-structure)
-    - [package.json](#package.json)
-    - [webpack.config.cjs](#webpack.config.cjs)
-    - [babel.config.json](#babel.config.json)
+    - [File structure](#file-structure)
+    - [package.json](#packagejson)
+    - [webpack.config.cjs](#webpackconfigcjs)
+    - [babel.config.json](#babelconfigjson)
 
 [4. How it works](#how-it-works)
+- [Dom Elements](#dom-elements)
+    - [createTextElement](#createtextelement)
+    - [createElement](#createelement)
+    - [Functional components](#functional-components)
+- [The Virtual DOM](#the-virtual-dom)
+    - [Fibers](#fibers)
+    - [createDom](#createdom)
+    - [updateDom](#updatedom)
+- [useState](#usestate)
+- [routeHandler](#routehandler)
+- [Committing changes](#committing-changes)
+    - [commitDeletion](#commitdeletion)
+    - [commitWork](#commitwork)
+    - [commitRoot](#commitroot)
+- [Updating components](#updating-components)
+    - [updateHostComponent](#updatehostcomponent)
+    - [updateFunctionComponent](#updatefunctioncomponent)
+    - [reconcileChildren](#reconcilechildren)
+- [Executing the work](#executing-the-work)
+    - [performUnitOfWork](#performunitofwork)
+    - [workLoop](#workloop)
 
-[5. Limitations](#limitations)
 
-[6. Acknowledgements](#acknowledgements)
+[5. Acknowledgements](#acknowledgements)
 
 # Background:
-
 This was my version of the [mini framework](https://learn.01founders.co/git/root/public/src/branch/master/subjects/mini-framework) project while studying at [01Founders](https://01founders.co/). The idea was to create a framework and then use it to create a [TodoMVC](https://todomvc.com/), with a future project using the same framework to make a multiplayer browser game. I chose to reimplement the main basic features of react, hence 'minireact'.
 
 # Features:
 Overview of the features included in the framework which were used, see [How it works](#how-it-works) for more detailed explanations.
 
-## Virtual dom
+Virtual dom:
 The virtual dom allows you to only rerender components that have actually changed, while keeping other elements the same. This is done by keeping track of changes made to state within a component, as well as props passed into a component by the parent component. Any changes to a parent causes children to be rerendered, but a child component may change without requiring sibling or cousin components to be rerendered.
 
-## State management
+State management:
 Implemented the equivalent of reacts useState, which is state that a component has access to and a change in that state will cause it to rerender. Changes to state are done using a callback function that replaces what is stored in the state rather than mutating it, so as to make it noticeable when there has been a change and trigger a rerender.
 
-## Event handling
-Basic version of the built in addEventListener has been implemented as the built in method was not allowed to be used, which currently only has the events required for the todoMVC working, and only allows one event per type per dom element. In practice it is better to use the built in addEventListener.
-
-## Routing
+Routing:
 Routing for routes of the form `#/foo` for a given `foo` are implemented, where you can have links that change the hash route by adding `href=#/foo` and functions that detect that change and do something based on it. 
 
-# Usage:
+Event handling:
+Basic version of the built in addEventListener has been implemented as the built in method was not allowed to be used, which currently only has the events required for the todoMVC working, and only allows one event per type per dom element. In practice it is better to use the built in addEventListener.
 
+
+# Usage:
 ## Quick start
 clone the repo, open in vscode and use live server from the root directory. This should run the existing todoMVC app made with the framework.
 
@@ -58,7 +76,6 @@ If there are issues getting this to work, look at the prerequisites section and 
 
 
 ## Prerequisites
-
 The idea of the framework is that it should feel like using react, as such the intended way to use it is with jsx syntax and primarily functional components. Babel and webpack are required to be installed to transpile the jsx into javascript to run in the browser. While it is possible to use a custom server, for the purposes of this project I just used the live-server extension for VSCode.
 
 If you clone this repository, the package json already has what is required so `npm install` or `npm run build` should get everything needed, but if there are any issues or if you want to use the framework by itself and set things up manually then install babel, webpack and babel loader using:
@@ -68,7 +85,6 @@ If you clone this repository, the package json already has what is required so `
 Install the [live server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) VSCode extension, and then click on the icon on the bottom left while in the root folder. And look at [Manual configuration](#manual-configuration) for how to set up the config files.
 
 ## Making other apps
-
 If you want to make your own app with the framework, you can copy over just the minireact.js file as that contains everything required, however there may be a lot of configuration required for this. Instead I would recomment just deleting any components in the `src/components` folder and editing the `src/app.js` file, then running `npm run build`. 
 
 In app.js, and any component files, you need to have:
@@ -142,7 +158,7 @@ and to use it:
     let listItems = [1,2,3,4,5]
     const squareListInstance = <SquareList intArray={listItems}></SquareList>
 
-as you can see, once you've defined your component, it can be used with the same syntax as built in html elements! it's basically creating custom html elements.
+as you can see, once you've defined your component, it can be used with the same syntax as built in html elements! it's basically creating a custom html element.
 
 You can also pass in children to these and access them within instead of passing in as props. The children are treated as just an extra prop, but are put between the tags instead of within the first tag with a named prop. This is equivalent to the above:
 
@@ -159,6 +175,7 @@ You can also pass in children to these and access them within instead of passing
     const squareListInstance = <SquareList>{listItems}</SquareList>
 
 you can also access the props within the definition by calling the props object, these are equivalent to the above two respectively:
+
     function SquareList(props){
         const intArray = props.intArray
         let listItemComponents = intArray.map((item) => <li>{item * item}</li>)
@@ -181,11 +198,15 @@ and
 
 
 ### State management
-If you want to use state management, call `minireact.useState` the same way you would use `useState` from regular react. This means creating a state variable and a state updating function, using `minireact.useState`, where what is passed in is the initialised state given. It is of the form
+If you want to use state management, call `minireact.useState` the same way you would use `useState` from regular react. This means creating a state variable and a state updating function, using `minireact.useState`, where what is passed in is the initialised state given, and two things are returned, a referenced to the state variable and function to update that state variable. This function takes another callback function as an argument, the callback function has it's argument the current state and the return value as the new state. It is recommended to replace the state with a new object rather than updating it in place, so that the renderer can notice that it has changed and update the dom accordingly. 
+
+It is of the form
 
     [foo, setFoo] = minireact.useState(0)
 
-where above variable foo is initialised to `0`. When you want to update foo, you should use the `setFoo` callback function, which will take in another function that has the initial state as input and the new state as the return value. for example:
+where above variable foo in this example is initialised to `0`. When you want to update foo, you should use the `setFoo` function.
+
+For example:
 
     setFoo(() => 5)
 
@@ -202,8 +223,9 @@ to add 5 to the old state, or
 
 for an example where there are more than one line in the callback function and you want to do things besides return the new value.
 
-### Routing
+If your state is an array, you should take care to use things that create a new array rather than editing the existing array. Usage of map, the spread operator and filter are recommended. See [here](https://react.dev/learn/updating-arrays-in-state) for more examples and further explanation. 
 
+### Routing
 If you want to have behaviour based routes in the url, currently only routes of the form `#/foo` are implemented, to use this put
 
     window.onhashchange = () => minireact.routeHandler(routes);
@@ -316,21 +338,68 @@ The exact file structure isn't that important but changing it may require changi
 
 
 # How it works:
-## create element and create text element
-## create dom and update dom
-## commit root, commit work and commit deletion
-## update function component and update host component
-## reconcile children
-## workloop and perform unit of work
-## use state 
-## routehandler
+## DOM Elements
+### createTextElement
+The create text element function is the simplest and just takes text as input and returns an object with the metadata to be consistent with more complicated elements. It has a type, the value of the text itself in the props and no children.
 
-# Limitations:
-    can't handle all events, and can only have one event type per DOM element, this is due to needing to create a custom event handler for the project without use of addEventListener, in practice can just use that.
+### createElement
+The create element function handles all types of elements, with the text element as a special case. It takes the type of the element, any props and any children and puts it in a correctly formatted object. This formatting is recognized by babel as it matches what regular React uses, and allows transpiling of jsx to vanilla Javascript. Children that are put in as arguments can either be other elements or simple strings, anything that is not already an element (which should be an object) is converted to a text element.
 
-    doesn't have all of the react hooks, only useState.
+### Functional components
+Functional components are the preferred way to use mini react where possible. A functional component is a function that takes props as an argument and returns a regular component when run, and this is considered the child of the functional component.
 
+## The Virtual DOM
+The virtual dom as a shadow copy of the dom that is rendered in the browser. Changes are calculated in the virtual dom and propogated to children, where it's decided which elements need to be created, updated or destroyed and which elements can remain as they are.
+
+### Fibers
+A fiber is the javascript object representing a unit of work to be done regarding individual elements, as created by the createElement function. Each fiber may have children, which will determine the order of tasks to be performed. If at least one child exists, the first child will be the next unit of work, if it doesn't then a 'sibling' element will be the next, if no 'siblings' exist, then it will go back a level and look for siblings of the parent to update, until finally it returns to the root at which point the work is complete and the old DOM tree can replaced with the new one.
+
+### createDom 
+This function takes the fiber and checks whether it's a text element or not. If it is it calls document.createTextNode with an empty string to be updated later, otherwise it uses document.createElement to create a html element of the relevant type. It also adds a `customAddEventListener` and `customRemoveEventListener` methods to the element which can be used to keep track of certain events. This is an artifact of the requirements of the project and in practice one can use the built in `addEventListener` and `removeEventListener` functions instead.
+
+### updateDom
+This function takes a virtual dom element, the current props it has and what it should be updated to, and does a deep comparison to see which specific props (including child elements) need to be updated. Any that are unchanged are left alone.
+
+
+## useState
+Handles the useState hook. Takes in an initialization value and returns a state variable ('hook.state') and an updating function. Checks if the hook already exists and should be updated, if not creates a new one. The hook has a queue of actions to be taken, which are used to update state. This is the callback function passed into the setState function returned. 
+
+The setState function updates the wipRoot so the workloop stars a new render. 
+
+It adds the hook to the list of hooks in the wipFiber and increments the hookIndex, before returning the state hook and the setState function.
+
+## routeHandler
+The route handler takes an object with 'hash routes' as keys and callback functions as values. a 'hash route' is a suffix to a url of the form `#/foo` for a given foo. These types of routes are the only ones currently implemented. The function cuts off the '#/' at the start, then checks the current path in the window against the keys in the routes object passed into it. If found, it executes the callback function associated with it, otherwise it logs an error and does nothing. May want to have other default behaviour for nonexistent routes such as a 404 page but not currently implemented.
+
+
+## Committing changes
+Any changes are saved to wipRoot (work in progress root) which is to replace the current root in one step after all relevant calculations have been made. Elements that are slated for deletion are saved in a global array that will go through and delete them one at a time. There are functional components and basic components that have a virtual dom node, where functional components bottom out to basic components as return values. 
+
+### commitDeletion
+This takes a fiber and it's parent, checks if the fiber is a basic element or a functional component, if it's a basic component it directly removes the fiber from the parent, if it's a functional component it recursively goes through it's children until it finds one that is a basic element and removes it.
+
+### commitWork
+This function takes a fiber, finds it's parent, checks the `effectTag` for the type of task to be performed, and executes it. The existing types of work are appending a child, updating a child or removing a child. It then recursively does the same for the child of the fiber and then the siblings.
+
+### commitRoot
+This function looks at list of deletions to be completed and actually executes the deletions by calling the commitWork function on each, calls commitWork on the first child of wipRoot, then updates currentRoot to be wipRoot.
+
+## Updating components
+### updateHostComponent
+Host components are the 'regular' components that actually have virtual dom elements in their fibers. It takes the fiber, creates a dom for it if one doesn't exist, then passes it and it's children after being flattened to the reconcileChildren component.
+
+### updateFunctionComponent
+Functional components are able to have hooks, of which useState is the only one currently implemented. This function sets the wipFiber to the fiber passed in and adds an array of hooks and a hook index to keep track of all of the useState hooks that may be added to a fiber. It then passes the fiber and it's children onto reconcileChildren
+
+### reconcileChildren
+Takes in a wipFiber and it's children, checks to see if any new children have been created, or existing ones updated or deleted and if so creates a fiber with the appropriate effect tag to be completed by performUnitOfWork
+
+## Executing the work
+### performUnitOfWork
+Takes a fiber to work on, after completed the task assigned to the fiber, and returns the next task to be completed so that workLoop can call it again with the next task. Order is child, if not children, sibling, if no siblings, siblings of parents until the whole tree has been completed.
+
+### workLoop
+Uses requestIdleCallback to find when the browser is next available to perform a task, and then calls performUnitOfWork to complete the next in the queue of tasks until it is empty.
 
 # Acknowledgements:
-
 Thanks to rodrigo pombo for his excellent [tutorial](https://pomb.us/build-your-own-react/) on the basics of reimplementing react, as well as Peter, Rupert, Bilal and Daisy for their help in finding and fixing bugs getting my head around everything.
