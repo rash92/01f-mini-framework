@@ -338,6 +338,8 @@ The exact file structure isn't that important but changing it may require changi
 
 
 # How it works:
+This section is unnecessary if you just want to use the framework, but it goes through what the purpose of each function in `minireact.js` (i.e. the framework) does.
+
 ## DOM Elements
 ### createTextElement
 The create text element function is the simplest and just takes text as input and returns an object with the metadata to be consistent with more complicated elements. It has a type, the value of the text itself in the props and no children.
