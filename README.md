@@ -72,6 +72,10 @@ clone the repo, open in vscode and use live server from the root directory. This
 
 If you want to make your own app with the framework, delete/ replace components in the `src/components` directory and edit the app.js to create your app file and then then run
 
+    npm install
+
+and
+
     npm run build
 
 If there are issues getting this to work, look at the prerequisites section and for details of how to structure your app look at [Making other apps](#-making-other-apps).
